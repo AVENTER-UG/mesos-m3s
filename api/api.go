@@ -5,6 +5,7 @@ import (
 	//"encoding/json"
 
 	"encoding/json"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	//"io/ioutil"
@@ -16,17 +17,20 @@ import (
 
 // Service include all the current vars and global config
 var config *cfg.Config
-var framework *mesosutil.FrameworkConfig
 
 // SetConfig set the global config
 func SetConfig(cfg *cfg.Config, frm *mesosutil.FrameworkConfig) {
 	config = cfg
-	framework = frm
 }
 
 // Commands is the main function of this package
 func Commands() *mux.Router {
+	// Kubernetes API Proxy
+	destURL := "https://" + config.M3SBootstrapServerHostname + ":" + strconv.Itoa(config.K3SServerPort)
+	k8h := k8handle{reverseProxy: destURL}
+
 	rtr := mux.NewRouter()
+	rtr.PathPrefix("/api").Handler(k8h)
 	rtr.HandleFunc("/v0/agent/scale/{count}", V0ScaleK3SAgent).Methods("GET")
 	rtr.HandleFunc("/v0/agent/scale", V0GetCountK3SAgent).Methods("GET")
 	rtr.HandleFunc("/v0/server/config", V0GetKubeconfig).Methods("GET")
@@ -70,6 +74,5 @@ func ErrorMessage(number int, function string, msg string) []byte {
 	err.Message = msg
 
 	data, _ := json.Marshal(err)
-	return []byte(data)
-
+	return data
 }

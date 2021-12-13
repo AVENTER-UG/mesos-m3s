@@ -40,7 +40,7 @@ func StartK3SAgent(taskID string) {
 			Protocol:      &protocol,
 		},
 		{
-			HostPort:      uint32(hostport + 1),
+			HostPort:      hostport + 1,
 			ContainerPort: 443,
 			Protocol:      &protocol,
 		},

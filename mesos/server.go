@@ -89,12 +89,12 @@ func StartK3SServer(taskID string) {
 			Protocol:      &protocol,
 		},
 		{
-			HostPort:      uint32(hostport + 1),
+			HostPort:      hostport + 1,
 			ContainerPort: 6443,
 			Protocol:      &protocol,
 		},
 		{
-			HostPort:      uint32(hostport + 2),
+			HostPort:      hostport + 2,
 			ContainerPort: 8080,
 			Protocol:      &protocol,
 		},

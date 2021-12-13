@@ -61,6 +61,8 @@ func init() {
 	config.RedisServer = util.Getenv("REDIS_SERVER", "127.0.0.1:6379")
 	config.RedisPassword = os.Getenv("REDIS_PASSWORD")
 	config.RedisDB, _ = strconv.Atoi(util.Getenv("REDIS_DB", "1"))
+	config.SSLKey = os.Getenv("SSL_KEY_BASE64")
+	config.SSLCrt = os.Getenv("SSL_CRT_BASE64")
 
 	// if labels are set, unmarshel it into the Mesos Label format.
 	labels := os.Getenv("K3S_AGENT_LABELS")
@@ -101,4 +103,10 @@ func init() {
 		framework.MesosSSL = false
 	}
 
+	// Skip SSL Verification
+	if strings.Compare(os.Getenv("SKIP_SSL"), "true") == 0 {
+		config.SkipSSL = true
+	} else {
+		config.SkipSSL = false
+	}
 }

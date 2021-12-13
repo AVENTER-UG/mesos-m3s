@@ -38,7 +38,6 @@ func SetConfig(cfg *cfg.Config, frm *mesosutil.FrameworkConfig) {
 
 // Subscribe to the mesos backend
 func Subscribe() error {
-
 	subscribeCall := &mesosproto.Call{
 		FrameworkID: framework.FrameworkInfo.ID,
 		Type:        mesosproto.Call_SUBSCRIBE,
@@ -50,8 +49,9 @@ func Subscribe() error {
 	body, _ := marshaller.MarshalToString(subscribeCall)
 	logrus.Debug(body)
 	client := &http.Client{}
+	// #nosec G402
 	client.Transport = &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: config.SkipSSL},
 	}
 
 	protocol := "https"
@@ -67,6 +67,7 @@ func Subscribe() error {
 	if err != nil {
 		logrus.Fatal(err)
 	}
+	defer res.Body.Close()
 
 	reader := bufio.NewReader(res.Body)
 
@@ -101,7 +102,7 @@ func Subscribe() error {
 			framework.FrameworkInfo.ID = event.Subscribed.GetFrameworkID()
 			framework.MesosStreamID = res.Header.Get("Mesos-Stream-Id")
 			d, _ := json.Marshal(&framework)
-			err := config.RedisClient.Set(config.RedisCTX, "framework", d, 0).Err()
+			err = config.RedisClient.Set(config.RedisCTX, "framework", d, 0).Err()
 			if err != nil {
 				logrus.Error("Framework save config and state into redis Error: ", err)
 			}
@@ -109,7 +110,7 @@ func Subscribe() error {
 			logrus.Debug("Update", HandleUpdate(&event))
 			// save configuration
 			d, _ := json.Marshal(&config)
-			err := config.RedisClient.Set(config.RedisCTX, "framework_config", d, 0).Err()
+			err = config.RedisClient.Set(config.RedisCTX, "framework_config", d, 0).Err()
 			if err != nil {
 				logrus.Error("Framework save config and state into redis Error: ", err)
 			}
@@ -128,21 +129,10 @@ func Subscribe() error {
 	}
 }
 
-// if all Tasks are running, suppress framework offers
-func suppressFramework() {
-	logrus.Info("Framework Suppress")
-	suppress := &mesosproto.Call{
-		Type: mesosproto.Call_SUPPRESS,
-	}
-	err := mesosutil.Call(suppress)
-	if err != nil {
-		logrus.Error("Supress Framework Call: ")
-	}
-}
-
 // Generate random host portnumber
 func getRandomHostPort() int {
 	rand.Seed(time.Now().UnixNano())
+	// #nosec G404
 	v := rand.Intn(framework.PortRangeTo-framework.PortRangeFrom) + framework.PortRangeFrom
 	return v
 }

@@ -54,6 +54,9 @@ type Config struct {
 	RedisCTX                    context.Context
 	RedisPassword               string
 	RedisDB                     int
+	SkipSSL                     bool
+	SSLKey                      string
+	SSLCrt                      string
 }
 
 // M3SStatus store the current TaskState of the M3s services

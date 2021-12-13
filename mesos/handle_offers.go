@@ -71,7 +71,7 @@ func HandleOffers(offers *mesosproto.Event_Offers) error {
 		var taskInfo []mesosproto.TaskInfo
 		RefuseSeconds := 5.0
 
-		taskInfo, _ = prepareTaskInfoExecuteContainer(takeOffer.AgentID, cmd)
+		taskInfo = prepareTaskInfoExecuteContainer(takeOffer.AgentID, cmd)
 
 		if cmd.TaskName == config.PrefixHostname+"server" {
 			config.M3SBootstrapServerHostname = takeOffer.GetHostname()
@@ -111,8 +111,6 @@ func HandleOffers(offers *mesosproto.Event_Offers) error {
 		logrus.Info("Decline unneeded offer: ", offerIds)
 		return mesosutil.Call(mesosutil.DeclineOffer(offerIds))
 	}
-
-	return nil
 }
 
 // check if the ressources of the offer are matching the needs of the cmd

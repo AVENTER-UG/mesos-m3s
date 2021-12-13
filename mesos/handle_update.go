@@ -13,7 +13,6 @@ import (
 
 // HandleUpdate will handle the offers event of mesos
 func HandleUpdate(event *mesosproto.Event) error {
-
 	logrus.Debug("HandleUpdate")
 	// unsuppress
 	revive := &mesosproto.Call{

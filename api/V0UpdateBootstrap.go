@@ -26,7 +26,7 @@ func V0UpdateBootstrap(w http.ResponseWriter, r *http.Request) {
 	res, err := client.Do(req)
 
 	if err != nil {
-		logrus.Error("V0UpdateBootstrap: Error 1: ", err, res)
+		logrus.Error("V0UpdateBootstrap: Error 1: ", err.Error(), res)
 		return
 	}
 
@@ -38,6 +38,10 @@ func V0UpdateBootstrap(w http.ResponseWriter, r *http.Request) {
 	}
 
 	content, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		logrus.Error("V0UpdateBootstrap: ", err.Error())
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Header().Set("Api-Service", "v0")

@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -31,6 +33,15 @@ func initCache() {
 	pong, err := client.Ping(config.RedisCTX).Result()
 	logrus.Debug("Redis Health: ", pong, err)
 	config.RedisClient = client
+}
+
+// convert Base64 Encodes PEM Certificate to tls object
+func decodeBase64Cert(pemCert string) []byte {
+	sslPem, err := base64.URLEncoding.DecodeString(pemCert)
+	if err != nil {
+		logrus.Fatal("Error decoding SSL PEM from Base64: ", err.Error())
+	}
+	return sslPem
 }
 
 func main() {
@@ -73,19 +84,35 @@ func main() {
 		json.Unmarshal([]byte(key), &framework)
 	}
 
-	// load framework config from DB
-	key = api.GetRedisKey("framework_config")
-	if key != "" {
-		json.Unmarshal([]byte(key), &config)
-	}
-
 	// The Hostname should ever be set after reading the state file.
 	framework.FrameworkInfo.Hostname = &framework.FrameworkHostname
 
-	http.Handle("/", api.Commands())
+	server := &http.Server{
+		Addr:    listen,
+		Handler: api.Commands(),
+		TLSConfig: &tls.Config{
+			ClientAuth: tls.RequestClientCert,
+			MinVersion: tls.VersionTLS12,
+		},
+	}
+
+	if config.SSLCrt != "" && config.SSLKey != "" {
+		logrus.Debug("Enable TLS")
+		crt := decodeBase64Cert(config.SSLCrt)
+		key := decodeBase64Cert(config.SSLKey)
+		certs, err := tls.X509KeyPair(crt, key)
+		if err != nil {
+			logrus.Fatal("TLS Server Error: ", err.Error())
+		}
+		server.TLSConfig.Certificates = []tls.Certificate{certs}
+	}
 
 	go func() {
-		http.ListenAndServe(listen, nil)
+		if config.SSLCrt != "" && config.SSLKey != "" {
+			server.ListenAndServeTLS("", "")
+		} else {
+			server.ListenAndServe()
+		}
 	}()
 	logrus.Fatal(mesos.Subscribe())
 }

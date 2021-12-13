@@ -64,7 +64,7 @@ func defaultResources(cmd mesosutil.Command) []mesosproto.Resource {
 	return res
 }
 
-func prepareTaskInfoExecuteContainer(agent mesosproto.AgentID, cmd mesosutil.Command) ([]mesosproto.TaskInfo, error) {
+func prepareTaskInfoExecuteContainer(agent mesosproto.AgentID, cmd mesosutil.Command) []mesosproto.TaskInfo {
 	d, _ := json.Marshal(&cmd)
 	logrus.Debug("HandleOffers cmd: ", util.PrettyJSON(d))
 
@@ -137,5 +137,5 @@ func prepareTaskInfoExecuteContainer(agent mesosproto.AgentID, cmd mesosutil.Com
 	d, _ = json.Marshal(&msg)
 	logrus.Debug("HandleOffers msg: ", util.PrettyJSON(d))
 
-	return []mesosproto.TaskInfo{msg}, nil
+	return []mesosproto.TaskInfo{msg}
 }

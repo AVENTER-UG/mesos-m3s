@@ -5,7 +5,6 @@ import (
 	"flag"
 	"io/ioutil"
 	"net/http"
-	_ "net/http/pprof"
 	"os"
 	"os/exec"
 	"strconv"
@@ -93,6 +92,7 @@ func APIUpdate(w http.ResponseWriter, r *http.Request) {
 	if version.BootstrapBuild != MinVersion {
 		w.Write([]byte("Start bootstrap server update"))
 		logrus.Info("Start update")
+		// #nosec: G204
 		stdout, err := exec.Command("/mnt/mesos/sandbox/update", strconv.Itoa(os.Getpid())).Output()
 		if err != nil {
 			logrus.Error("Do update", err, stdout)
