@@ -18,7 +18,6 @@ RUN adduser -S -D -H -h /app appuser
 USER appuser
 
 COPY --from=builder /build/main /app/
-COPY --from=builder /build/ssl /app/ssl/
 
 EXPOSE 10000
 
