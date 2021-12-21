@@ -10,6 +10,8 @@
 - Fix mesos-cli to determine framework uuid by name.
 - Move statefile to Redis DB
 - Add TLS Server Support (env variable SSL_CRT_BASE64, SSL_KEY_BASE64)
+- Change DB items framework and framework_config to be saved with the
+  frameworkName as prefix.
 
 
 ## v0.2.0

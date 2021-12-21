@@ -102,7 +102,7 @@ func Subscribe() error {
 			framework.FrameworkInfo.ID = event.Subscribed.GetFrameworkID()
 			framework.MesosStreamID = res.Header.Get("Mesos-Stream-Id")
 			d, _ := json.Marshal(&framework)
-			err = config.RedisClient.Set(config.RedisCTX, "framework", d, 0).Err()
+			err = config.RedisClient.Set(config.RedisCTX, framework.FrameworkName+":framework", d, 0).Err()
 			if err != nil {
 				logrus.Error("Framework save config and state into redis Error: ", err)
 			}
@@ -110,7 +110,7 @@ func Subscribe() error {
 			logrus.Debug("Update", HandleUpdate(&event))
 			// save configuration
 			d, _ := json.Marshal(&config)
-			err = config.RedisClient.Set(config.RedisCTX, "framework_config", d, 0).Err()
+			err = config.RedisClient.Set(config.RedisCTX, framework.FrameworkName+":framework_config", d, 0).Err()
 			if err != nil {
 				logrus.Error("Framework save config and state into redis Error: ", err)
 			}

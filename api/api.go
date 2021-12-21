@@ -17,10 +17,12 @@ import (
 
 // Service include all the current vars and global config
 var config *cfg.Config
+var framework *mesosutil.FrameworkConfig
 
 // SetConfig set the global config
 func SetConfig(cfg *cfg.Config, frm *mesosutil.FrameworkConfig) {
 	config = cfg
+	framework = frm
 }
 
 // Commands is the main function of this package

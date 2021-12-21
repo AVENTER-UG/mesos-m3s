@@ -79,7 +79,7 @@ func main() {
 	api.SetConfig(&config, &framework)
 
 	// load framework state from DB
-	key := api.GetRedisKey("framework")
+	key := api.GetRedisKey(framework.FrameworkName + ":framework")
 	if key != "" {
 		json.Unmarshal([]byte(key), &framework)
 	}
