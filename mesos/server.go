@@ -37,7 +37,7 @@ func StartK3SServer(taskID string) {
 	cmd.ContainerImage = config.ImageK3S
 	cmd.Memory = config.K3SMEM
 	cmd.CPU = config.K3SCPU
-	cmd.TaskName = config.PrefixHostname + "server"
+	cmd.TaskName = config.PrefixHostname + ":server"
 	cmd.Hostname = config.PrefixHostname + "server" + "." + config.Domain
 	cmd.Command = "$MESOS_SANDBOX/bootstrap '" + config.K3SServerString + "--tls-san=" + config.Domain + "'"
 	cmd.DockerParameter = []mesosproto.Parameter{

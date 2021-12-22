@@ -50,16 +50,16 @@ func Heartbeat() {
 
 // K3SHeartbeat to execute K3S Bootstrap API Server commands
 func K3SHeartbeat() {
-	if api.CountRedisKey(config.PrefixHostname+"etcd:*") < config.ETCDMax {
+	if api.CountRedisKey(config.PrefixHostname+":etcd:*") < config.ETCDMax {
 		StartEtcd("")
 	}
 	if getEtcdStatus() == "TASK_RUNNING" && !IsK3SServerRunning() {
-		if api.CountRedisKey(config.PrefixHostname+"server:*") < config.K3SServerMax {
+		if api.CountRedisKey(config.PrefixHostname+":server:*") < config.K3SServerMax {
 			StartK3SServer("")
 		}
 	}
 	if IsK3SServerRunning() {
-		if api.CountRedisKey(config.PrefixHostname+"agent:*") < config.K3SAgentMax {
+		if api.CountRedisKey(config.PrefixHostname+":agent:*") < config.K3SAgentMax {
 			StartK3SAgent("")
 		}
 	}

@@ -48,7 +48,6 @@ func init() {
 	config.ImageETCD = util.Getenv("IMAGE_ETCD", "docker.io/bitnami/etcd:latest")
 	config.VolumeDriver = util.Getenv("VOLUME_DRIVER", "local")
 	config.VolumeK3SServer = util.Getenv("VOLUME_K3S_SERVER", "/data/k3s")
-	config.PrefixHostname = util.Getenv("PREFIX_HOSTNAME", "k3s")
 	config.K3SToken = util.Getenv("K3S_TOKEN", "123456789")
 	config.ETCDMax, _ = strconv.Atoi(util.Getenv("ETCD_COUNT", "1"))
 	config.BootstrapURL = util.Getenv("BOOTSTRAP_URL", "https://raw.githubusercontent.com/AVENTER-UG/go-mesos-framework-k3s/master/bootstrap/bootstrap.sh")
@@ -63,6 +62,7 @@ func init() {
 	config.RedisDB, _ = strconv.Atoi(util.Getenv("REDIS_DB", "1"))
 	config.SSLKey = os.Getenv("SSL_KEY_BASE64")
 	config.SSLCrt = os.Getenv("SSL_CRT_BASE64")
+	config.PrefixHostname = util.Getenv("PREFIX_HOSTNAME", framework.FrameworkName)
 
 	// if labels are set, unmarshel it into the Mesos Label format.
 	labels := os.Getenv("K3S_AGENT_LABELS")
