@@ -18,8 +18,11 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// MinVersion is the version number of this program
-var MinVersion string
+// BuildVersion of m3s
+var BuildVersion string
+
+// GitVersion is the revision and commit number
+var GitVersion string
 
 // init the redis cache
 func initCache() {
@@ -47,7 +50,7 @@ func decodeBase64Cert(pemCert string) []byte {
 
 func main() {
 	util.SetLogging(config.LogLevel, config.EnableSyslog, config.AppName)
-	logrus.Println(config.AppName + " build " + MinVersion)
+	logrus.Println(config.AppName + " build " + BuildVersion + " git " + GitVersion)
 
 	listen := fmt.Sprintf(":%s", framework.FrameworkPort)
 
@@ -93,7 +96,12 @@ func main() {
 		config.M3SBootstrapServerPort = oldconfig.M3SBootstrapServerPort
 		config.M3SBootstrapServerHostname = oldconfig.M3SBootstrapServerHostname
 		config.K3SServerPort = oldconfig.K3SServerPort
+		config.K3SServerURL = oldconfig.K3SServerURL
 	}
+
+	// set current m3s version
+	config.Version.M3SVersion.GitVersion = GitVersion
+	config.Version.M3SVersion.BuildDate = BuildVersion
 
 	// The Hostname should ever be set after reading the state file.
 	framework.FrameworkInfo.Hostname = &framework.FrameworkHostname

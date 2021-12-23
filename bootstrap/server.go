@@ -79,7 +79,7 @@ func APIUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var version cfg.Version
+	var version cfg.M3SVersion
 	err = json.Unmarshal(body, &version)
 
 	if err != nil {
@@ -89,7 +89,7 @@ func APIUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check if the current Version diffs to the online version. If yes, then start the update.
-	if version.BootstrapBuild != MinVersion {
+	if version.BootstrapVersion.GitVersion != MinVersion {
 		w.Write([]byte("Start bootstrap server update"))
 		logrus.Info("Start update")
 		// #nosec: G204

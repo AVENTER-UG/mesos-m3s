@@ -184,7 +184,7 @@ class M3s(PluginBase):
             print(data)
 
         if argv["--kubernetes"]:
-            data = http.read_endpoint(framework_address, "/v0/status/k8", self)
+            data = http.read_endpoint(framework_address, "/v0/status/k8s", self)
             print(data)
 
     def list(self, argv):

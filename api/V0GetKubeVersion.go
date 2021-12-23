@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -44,7 +45,19 @@ func V0GetKubeVersion(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	err = json.Unmarshal(content, &config.Version)
+	if err != nil {
+		logrus.Error("V0GetKubeVersion: Error 3 ", err)
+		return
+	}
+
+	d, err := json.Marshal(&config.Version)
+	if err != nil {
+		logrus.Error("V0GetKubeVersion: Error 4 ", err)
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.Header().Set("Api-Service", "v0")
-	w.Write(content)
+	w.Write(d)
 }

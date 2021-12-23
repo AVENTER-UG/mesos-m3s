@@ -12,7 +12,6 @@ import (
 type Config struct {
 	Principal                   string
 	LogLevel                    string
-	MinVersion                  string
 	AppName                     string
 	EnableSyslog                bool
 	Hostname                    string
@@ -56,6 +55,7 @@ type Config struct {
 	SkipSSL                     bool
 	SSLKey                      string
 	SSLCrt                      string
+	Version                     M3SVersion
 }
 
 // M3SStatus store the current TaskState of the M3s services
@@ -84,16 +84,29 @@ type Count struct {
 	Running int // how many are running
 }
 
-// Version shows the current version of m3s
-type Version struct {
-	BootstrapBuild string `json:"bootstrap_build"`
-	M3sBuild       string `json:"m3s_build"`
-	M3sBersion     string `json:"m3s_version"`
-}
-
 // ErrorMsg hold the structure of error messages
 type ErrorMsg struct {
 	Message  string
 	Number   int
 	Function string
+}
+
+// M3SVersion hold the version numbers off the whole m3s stack
+type M3SVersion struct {
+	ClientVersion    versionInfo `json:"clientVersion"`
+	ServerVersion    versionInfo `json:"serverVersion"`
+	M3SVersion       versionInfo `json:"m3sVersion"`
+	BootstrapVersion versionInfo `json:"bootstrapVersion"`
+}
+
+type versionInfo struct {
+	Major        string `json:"major"`
+	Minor        string `json:"minor"`
+	GitVersion   string `json:"gitVersion"`
+	GitCommit    string `json:"gitCommit"`
+	GitTreeState string `json:"gitTreeState"`
+	BuildDate    string `json:"buildDate"`
+	GoVersion    string `json:"goVersion"`
+	Compiler     string `json:"compiler"`
+	Platform     string `json:"platform"`
 }
