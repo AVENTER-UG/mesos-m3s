@@ -36,7 +36,7 @@ func V0ScaleEtcd(w http.ResponseWriter, r *http.Request) {
 		}
 		// if scale down, kill not needes agents
 		if newCount < oldCount {
-			keys := GetAllRedisKeys(config.PrefixHostname + "etcd:*")
+			keys := GetAllRedisKeys(framework.FrameworkName + ":etcd:*")
 
 			for keys.Next(config.RedisCTX) {
 				if newCount < oldCount {

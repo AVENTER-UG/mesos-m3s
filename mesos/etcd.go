@@ -12,7 +12,7 @@ import (
 )
 
 func getEtcdStatus() string {
-	keys := api.GetAllRedisKeys(config.PrefixHostname + ":etcd:*")
+	keys := api.GetAllRedisKeys(framework.FrameworkName + ":etcd:*")
 
 	for keys.Next(config.RedisCTX) {
 		key := api.GetRedisKey(keys.Val())
@@ -45,8 +45,8 @@ func StartEtcd(taskID string) {
 	cmd.Privileged = false
 	cmd.Memory = config.ETCDMEM
 	cmd.CPU = config.ETCDCPU
-	cmd.TaskName = config.PrefixHostname + ":etcd"
-	cmd.Hostname = config.PrefixHostname + "etcd" + "." + config.Domain
+	cmd.TaskName = framework.FrameworkName + ":etcd"
+	cmd.Hostname = framework.FrameworkName + "etcd" + "." + config.Domain
 	cmd.DockerParameter = []mesosproto.Parameter{}
 
 	AllowNoneAuthentication := "yes"

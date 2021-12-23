@@ -44,7 +44,7 @@ func init() {
 	config.K3SCustomDomain = util.Getenv("K3S_CUSTOM_DOMAIN", "cloud.local")
 	config.K3SServerString = util.Getenv("K3S_SERVER_STRING", "/usr/local/bin/k3s server --cluster-cidr=10.2.0.0/16 --service-cidr=10.3.0.0/16 --cluster-dns=10.3.0.10 --snapshotter=native --flannel-backend=vxlan --flannel-iface=ethwe ")
 	config.K3SAgentString = util.Getenv("K3S_AGENT_STRING", "/usr/local/bin/k3s agent --snapshotter=native --flannel-iface=ethwe --flannel-backend=vxlan ")
-	config.ImageK3S = util.Getenv("IMAGE_K3S", "ubuntu:groovy")
+	config.ImageK3S = util.Getenv("IMAGE_K3S", "ubuntu:focal")
 	config.ImageETCD = util.Getenv("IMAGE_ETCD", "docker.io/bitnami/etcd:latest")
 	config.VolumeDriver = util.Getenv("VOLUME_DRIVER", "local")
 	config.VolumeK3SServer = util.Getenv("VOLUME_K3S_SERVER", "/data/k3s")
@@ -62,7 +62,6 @@ func init() {
 	config.RedisDB, _ = strconv.Atoi(util.Getenv("REDIS_DB", "1"))
 	config.SSLKey = os.Getenv("SSL_KEY_BASE64")
 	config.SSLCrt = os.Getenv("SSL_CRT_BASE64")
-	config.PrefixHostname = util.Getenv("PREFIX_HOSTNAME", framework.FrameworkName)
 
 	// if labels are set, unmarshel it into the Mesos Label format.
 	labels := os.Getenv("K3S_AGENT_LABELS")

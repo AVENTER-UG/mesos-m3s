@@ -37,8 +37,8 @@ func StartK3SServer(taskID string) {
 	cmd.ContainerImage = config.ImageK3S
 	cmd.Memory = config.K3SMEM
 	cmd.CPU = config.K3SCPU
-	cmd.TaskName = config.PrefixHostname + ":server"
-	cmd.Hostname = config.PrefixHostname + "server" + "." + config.Domain
+	cmd.TaskName = framework.FrameworkName + ":server"
+	cmd.Hostname = framework.FrameworkName + "server" + "." + config.Domain
 	cmd.Command = "$MESOS_SANDBOX/bootstrap '" + config.K3SServerString + "--tls-san=" + config.Domain + "'"
 	cmd.DockerParameter = []mesosproto.Parameter{
 		{
@@ -149,7 +149,7 @@ func StartK3SServer(taskID string) {
 		{
 			Name: "K3S_DATASTORE_ENDPOINT",
 			Value: func() *string {
-				x := "http://" + config.PrefixHostname + "etcd" + "." + config.Domain + ":2379"
+				x := "http://" + framework.FrameworkName + "etcd" + "." + config.Domain + ":2379"
 				return &x
 			}(),
 		},
@@ -171,7 +171,7 @@ func StartK3SServer(taskID string) {
 
 // CreateK3SServerString create the K3S_URL string
 func CreateK3SServerString() {
-	server := "https://" + config.PrefixHostname + "server" + "." + config.Domain + ":6443"
+	server := "https://" + framework.FrameworkName + "server" + "." + config.Domain + ":6443"
 
 	config.K3SServerURL = server
 }

@@ -10,6 +10,7 @@ import (
 
 	"github.com/AVENTER-UG/mesos-m3s/api"
 	"github.com/AVENTER-UG/mesos-m3s/mesos"
+	cfg "github.com/AVENTER-UG/mesos-m3s/types"
 	mesosutil "github.com/AVENTER-UG/mesos-util"
 	goredis "github.com/go-redis/redis/v8"
 
@@ -82,6 +83,16 @@ func main() {
 	key := api.GetRedisKey(framework.FrameworkName + ":framework")
 	if key != "" {
 		json.Unmarshal([]byte(key), &framework)
+	}
+
+	// restore variable data from the old config
+	key = api.GetRedisKey(framework.FrameworkName + ":framework_config")
+	if key != "" {
+		var oldconfig cfg.Config
+		json.Unmarshal([]byte(key), &oldconfig)
+		config.M3SBootstrapServerPort = oldconfig.M3SBootstrapServerPort
+		config.M3SBootstrapServerHostname = oldconfig.M3SBootstrapServerHostname
+		config.K3SServerPort = oldconfig.K3SServerPort
 	}
 
 	// The Hostname should ever be set after reading the state file.

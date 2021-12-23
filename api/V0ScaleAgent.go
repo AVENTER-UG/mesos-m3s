@@ -38,7 +38,7 @@ func V0ScaleK3SAgent(w http.ResponseWriter, r *http.Request) {
 
 		// if scale down, kill not needes agents
 		if newCount < oldCount {
-			keys := GetAllRedisKeys(config.PrefixHostname + "agent:*")
+			keys := GetAllRedisKeys(framework.FrameworkName + ":agent:*")
 
 			for keys.Next(config.RedisCTX) {
 				if newCount < oldCount {

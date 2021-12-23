@@ -28,21 +28,21 @@ func getOffer(offers *mesosproto.Event_Offers, cmd mesosutil.Command) (mesosprot
 			mesosutil.Call(mesosutil.DeclineOffer(offerIds))
 			continue
 		}
-		if cmd.TaskName == config.PrefixHostname+":server" {
+		if cmd.TaskName == framework.FrameworkName+":server" {
 			if config.K3SServerConstraintHostname == "" {
 				offerret = offers.Offers[n]
 			} else if config.K3SServerConstraintHostname == offer.GetHostname() {
 				logrus.Debug("Set Server Constraint to:", offer.GetHostname())
 				offerret = offers.Offers[n]
 			}
-		} else if cmd.TaskName == config.PrefixHostname+":agent" {
+		} else if cmd.TaskName == framework.FrameworkName+":agent" {
 			if config.K3SAgentConstraintHostname == "" {
 				offerret = offers.Offers[n]
 			} else if config.K3SAgentConstraintHostname == offer.GetHostname() {
 				logrus.Debug("Set Agent Constraint to:", offer.GetHostname())
 				offerret = offers.Offers[n]
 			}
-		} else if cmd.TaskName == config.PrefixHostname+":etcd" {
+		} else if cmd.TaskName == framework.FrameworkName+":etcd" {
 			offerret = offers.Offers[n]
 		}
 	}
@@ -73,7 +73,7 @@ func HandleOffers(offers *mesosproto.Event_Offers) error {
 
 		taskInfo = prepareTaskInfoExecuteContainer(takeOffer.AgentID, cmd)
 
-		if cmd.TaskName == config.PrefixHostname+":server" {
+		if cmd.TaskName == framework.FrameworkName+":server" {
 			config.M3SBootstrapServerHostname = takeOffer.GetHostname()
 			config.M3SBootstrapServerPort = int(cmd.DockerPortMappings[0].HostPort)
 			config.K3SServerPort = int(cmd.DockerPortMappings[1].HostPort)

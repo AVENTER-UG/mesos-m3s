@@ -36,7 +36,6 @@ type Config struct {
 	ImageETCD                   string
 	VolumeDriver                string
 	VolumeK3SServer             string
-	PrefixHostname              string
 	K3SToken                    string
 	ETCDMax                     int
 	DockerSock                  string
@@ -61,10 +60,10 @@ type Config struct {
 
 // M3SStatus store the current TaskState of the M3s services
 type M3SStatus struct {
-	Server []mesosproto.TaskState
-	Agent  []mesosproto.TaskState
+	Server map[string]string
+	Agent  map[string]string
 	API    string
-	Etcd   []mesosproto.TaskState
+	Etcd   map[string]string
 }
 
 // State will have the state of all tasks stated by this framework
