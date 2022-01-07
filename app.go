@@ -61,6 +61,7 @@ func main() {
 	framework.CommandChan = make(chan mesosutil.Command, 100)
 	config.Hostname = framework.FrameworkHostname
 	config.Listen = listen
+	config.Suppress = false
 
 	framework.State = map[string]mesosutil.State{}
 
@@ -97,6 +98,8 @@ func main() {
 		config.M3SBootstrapServerHostname = oldconfig.M3SBootstrapServerHostname
 		config.K3SServerPort = oldconfig.K3SServerPort
 		config.K3SServerURL = oldconfig.K3SServerURL
+
+		api.SaveConfig()
 	}
 
 	// set current m3s version

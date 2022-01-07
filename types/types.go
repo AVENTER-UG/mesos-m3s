@@ -56,6 +56,7 @@ type Config struct {
 	SSLKey                      string
 	SSLCrt                      string
 	Version                     M3SVersion
+	Suppress                    bool
 }
 
 // M3SStatus store the current TaskState of the M3s services

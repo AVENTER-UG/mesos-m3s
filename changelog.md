@@ -12,8 +12,8 @@
 - Add TLS Server Support (env variable SSL_CRT_BASE64, SSL_KEY_BASE64)
 - Change DB items framework and framework_config to be saved with the
   frameworkName as prefix.
-- Fix M3SStatus and scale
-
+- Fix M3SStatus and scalet
+- Optimize framework suppress
 
 ## v0.2.0
 

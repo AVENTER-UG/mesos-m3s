@@ -35,4 +35,8 @@ publish:
 	@docker tag ${IMAGEFULLNAME}:${BRANCH} ${IMAGEFULLNAMEPUB}:${BRANCH}
 	@docker push ${IMAGEFULLNAMEPUB}:${BRANCH}
 
+docs:
+	@echo ">>>> Build docs"
+	$(MAKE) -C $@
+
 all: bootstrap build

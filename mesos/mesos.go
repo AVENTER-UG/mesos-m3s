@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	api "github.com/AVENTER-UG/mesos-m3s/api"
 	cfg "github.com/AVENTER-UG/mesos-m3s/types"
 	mesosutil "github.com/AVENTER-UG/mesos-util"
 	mesosproto "github.com/AVENTER-UG/mesos-util/proto"
@@ -109,11 +110,7 @@ func Subscribe() error {
 		case mesosproto.Event_UPDATE:
 			logrus.Debug("Update", HandleUpdate(&event))
 			// save configuration
-			d, _ := json.Marshal(&config)
-			err = config.RedisClient.Set(config.RedisCTX, framework.FrameworkName+":framework_config", d, 0).Err()
-			if err != nil {
-				logrus.Error("Framework save config and state into redis Error: ", err)
-			}
+			api.SaveConfig()
 		case mesosproto.Event_HEARTBEAT:
 			Heartbeat()
 		case mesosproto.Event_OFFERS:
