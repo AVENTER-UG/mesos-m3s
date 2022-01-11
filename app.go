@@ -98,6 +98,8 @@ func main() {
 		config.M3SBootstrapServerHostname = oldconfig.M3SBootstrapServerHostname
 		config.K3SServerPort = oldconfig.K3SServerPort
 		config.K3SServerURL = oldconfig.K3SServerURL
+		config.K3SAgentMax = oldconfig.K3SAgentMax
+		config.ETCDMax = oldconfig.ETCDMax
 
 		api.SaveConfig()
 	}

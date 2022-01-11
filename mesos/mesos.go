@@ -131,5 +131,30 @@ func getRandomHostPort() int {
 	rand.Seed(time.Now().UnixNano())
 	// #nosec G404
 	v := rand.Intn(framework.PortRangeTo-framework.PortRangeFrom) + framework.PortRangeFrom
+	port := uint32(v)
+	if portInUse(port, "server") || portInUse(port, "agent") {
+		v = getRandomHostPort()
+	}
 	return v
+}
+
+// Check if the port is already in use
+func portInUse(port uint32, service string) bool {
+	// get all running services
+	logrus.Debug("Check if port is in use: ", port, service)
+	keys := api.GetAllRedisKeys(framework.FrameworkName + ":" + service + ":*")
+	for keys.Next(config.RedisCTX) {
+		// get the details of the current running service
+		key := api.GetRedisKey(keys.Val())
+		var task mesosutil.Command
+		json.Unmarshal([]byte(key), &task)
+
+		// check if the given port is already in use
+		for _, hostport := range task.Discovery.Ports.Ports {
+			if hostport.Number == port {
+				return true
+			}
+		}
+	}
+	return false
 }

@@ -14,6 +14,7 @@
   frameworkName as prefix.
 - Fix M3SStatus and scalet
 - Optimize framework suppress
+- Check if port is already in usw
 
 ## v0.2.0
 
