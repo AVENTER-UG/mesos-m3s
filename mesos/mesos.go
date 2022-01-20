@@ -109,10 +109,10 @@ func Subscribe() error {
 			}
 		case mesosproto.Event_UPDATE:
 			logrus.Debug("Update", HandleUpdate(&event))
-			// save configuration
-			api.SaveConfig()
 		case mesosproto.Event_HEARTBEAT:
 			Heartbeat()
+			// save configuration
+			api.SaveConfig()
 		case mesosproto.Event_OFFERS:
 			// Search Failed containers and restart them
 			logrus.Debug("Offer Got")
