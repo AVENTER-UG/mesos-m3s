@@ -95,6 +95,17 @@ func init() {
 		}
 	}
 
+	// if the constraint is set, determine which kind of
+	config.ETCDConstraint = util.Getenv("ETCD_CONSTRAINT", "")
+	if strings.Contains(config.ETCDConstraint, ":") {
+		constraint := strings.Split(config.ETCDConstraint, ":")
+
+		switch strings.ToLower(constraint[0]) {
+		case "hostname":
+			config.ETCDConstraintHostname = strings.ToLower(constraint[1])
+		}
+	}
+
 	// The comunication to the mesos server should be via ssl or not
 	if strings.Compare(os.Getenv("MESOS_SSL"), "true") == 0 {
 		framework.MesosSSL = true

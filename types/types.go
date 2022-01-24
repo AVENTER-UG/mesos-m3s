@@ -45,6 +45,8 @@ type Config struct {
 	K3SMEM                      float64
 	ETCDCPU                     float64
 	ETCDMEM                     float64
+	ETCDConstraint              string
+	ETCDConstraintHostname      string
 	M3SStatus                   M3SStatus
 	MesosSandboxVar             string
 	RedisServer                 string

@@ -2,6 +2,7 @@ package mesos
 
 import (
 	"encoding/json"
+	"time"
 
 	api "github.com/AVENTER-UG/mesos-m3s/api"
 	mesosutil "github.com/AVENTER-UG/mesos-util"
@@ -30,6 +31,7 @@ func Heartbeat() {
 
 			mesosutil.Revive()
 			task.State = "__NEW"
+			task.StateTime = time.Now()
 			data, _ := json.Marshal(task)
 			err := config.RedisClient.Set(config.RedisCTX, task.TaskName+":"+task.TaskID, data, 0).Err()
 			if err != nil {

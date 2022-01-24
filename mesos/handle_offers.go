@@ -43,7 +43,12 @@ func getOffer(offers *mesosproto.Event_Offers, cmd mesosutil.Command) (mesosprot
 				offerret = offers.Offers[n]
 			}
 		} else if cmd.TaskName == framework.FrameworkName+":etcd" {
-			offerret = offers.Offers[n]
+			if config.ETCDConstraintHostname == "" {
+				offerret = offers.Offers[n]
+			} else if config.ETCDConstraintHostname == offer.GetHostname() {
+				logrus.Debug("Set ETCD Constraint to:", offer.GetHostname())
+				offerret = offers.Offers[n]
+			}
 		}
 	}
 	return offerret, offerIds
