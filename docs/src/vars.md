@@ -25,3 +25,6 @@
 - SKIP_SSL=true
 - SSL_CRT_BASE64=<cat server.crt | base64 -w 0>
 - SSL_KEY_BASE64=<cat server.key | base64 -w 0>
+- ETCD_CONSTRAINT=
+- K3S_AGENT_CONSTRAINT=
+- K3S_SERVER_CONSTRAINT=

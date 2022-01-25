@@ -18,10 +18,6 @@ func getOffer(offers *mesosproto.Event_Offers, cmd mesosutil.Command) (mesosprot
 		logrus.Debug("Got Offer From:", offer.GetHostname())
 		offerIds = append(offerIds, offer.ID)
 
-		if cmd.TaskName == "" {
-			continue
-		}
-
 		// if the ressources of this offer does not matched what the command need, the skip
 		if !isRessourceMatched(offer.Resources, cmd) {
 			logrus.Debug("Could not found any matched ressources, get next offer")
@@ -59,17 +55,20 @@ func HandleOffers(offers *mesosproto.Event_Offers) error {
 	var offerIds []mesosproto.OfferID
 	select {
 	case cmd := <-framework.CommandChan:
-		if cmd.TaskID == "" {
+		// if no taskid or taskname is given, it's a wrong task.
+		if cmd.TaskID == "" || cmd.TaskName == "" {
 			return nil
 		}
 		var takeOffer mesosproto.Offer
 		takeOffer, offerIds = getOffer(offers, cmd)
 		if takeOffer.GetHostname() == "" {
+			framework.CommandChan <- cmd
 			return nil
 		}
 		logrus.Debug("Take Offer From:", takeOffer.GetHostname())
 
 		if offerIds == nil {
+			framework.CommandChan <- cmd
 			return nil
 		}
 
