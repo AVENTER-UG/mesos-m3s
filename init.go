@@ -96,7 +96,7 @@ func init() {
 	}
 
 	// if the constraint is set, determine which kind of
-	config.ETCDConstraint = util.Getenv("ETCD_CONSTRAINT", "")
+	config.ETCDConstraint = util.Getenv("K3S_ETCD_CONSTRAINT", "")
 	if strings.Contains(config.ETCDConstraint, ":") {
 		constraint := strings.Split(config.ETCDConstraint, ":")
 
