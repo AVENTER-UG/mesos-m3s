@@ -22,7 +22,7 @@ func Heartbeat() {
 		var task mesosutil.Command
 		json.Unmarshal([]byte(key), &task)
 
-		if task.TaskID == "" {
+		if task.TaskID == "" || task.TaskName == "" {
 			continue
 		}
 

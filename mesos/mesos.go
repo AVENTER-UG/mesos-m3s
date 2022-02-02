@@ -5,11 +5,9 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
-	"math/rand"
 	"net/http"
 	"strconv"
 	"strings"
-	"time"
 
 	api "github.com/AVENTER-UG/mesos-m3s/api"
 	cfg "github.com/AVENTER-UG/mesos-m3s/types"
@@ -127,15 +125,16 @@ func Subscribe() error {
 }
 
 // Generate random host portnumber
-func getRandomHostPort() int {
-	rand.Seed(time.Now().UnixNano())
-	// #nosec G404
-	v := rand.Intn(framework.PortRangeTo-framework.PortRangeFrom) + framework.PortRangeFrom
-	port := uint32(v)
-	if portInUse(port, "server") || portInUse(port, "agent") {
-		v = getRandomHostPort()
+func getRandomHostPort() uint32 {
+	// search two free ports
+	for i := framework.PortRangeFrom; i < framework.PortRangeTo; i++ {
+		port := uint32(i)
+		if !portInUse(port, "server") && !portInUse(port, "agent") &&
+			!portInUse(port+1, "server") && !portInUse(port+1, "agent") {
+			return port
+		}
 	}
-	return v
+	return 0
 }
 
 // Check if the port is already in use

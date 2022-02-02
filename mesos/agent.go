@@ -21,7 +21,11 @@ func StartK3SAgent(taskID string) {
 		newTaskID, _ = util.GenUUID()
 	}
 
-	hostport := uint32(getRandomHostPort())
+	hostport := getRandomHostPort()
+	if hostport == 0 {
+		logrus.WithField("func", "StartK3SAgent").Error("Could not find free ports")
+		return
+	}
 	protocol := "tcp"
 
 	cmd.TaskID = newTaskID
