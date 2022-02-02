@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -16,8 +17,11 @@ import (
 	cfg "github.com/AVENTER-UG/mesos-m3s/types"
 )
 
-// MinVersion is the version number of this program
-var MinVersion string
+// BuildVersion of m3s
+var BuildVersion string
+
+// GitVersion is the revision and commit number
+var GitVersion string
 
 // DashboardInstalled is true if the dashboard is already installed
 var DashboardInstalled bool
@@ -89,7 +93,7 @@ func APIUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check if the current Version diffs to the online version. If yes, then start the update.
-	if version.BootstrapVersion.GitVersion != MinVersion {
+	if version.BootstrapVersion.GitVersion != GitVersion {
 		w.Write([]byte("Start bootstrap server update"))
 		logrus.Info("Start update")
 		// #nosec: G204
@@ -222,12 +226,21 @@ func APIStatus(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	// Prints out current version
+	var version bool
+	flag.BoolVar(&version, "v", false, "Prints current version")
+	flag.Parse()
+	if version {
+		fmt.Print(GitVersion)
+		return
+	}
+
 	util.SetLogging("INFO", false, "GO-K3S-API")
 
 	bind := flag.String("bind", "0.0.0.0", "The IP address to bind")
 	port := flag.String("port", "10422", "The port to listen")
 
-	logrus.Println("GO-K3S-API build "+MinVersion, *bind, *port)
+	logrus.Println("GO-K3S-API build "+BuildVersion+" git "+GitVersion+" ", *bind, *port)
 
 	DashboardInstalled = false
 

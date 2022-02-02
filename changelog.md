@@ -14,7 +14,8 @@
   frameworkName as prefix.
 - Fix M3SStatus and scalet
 - Optimize framework suppress
-- Check if port is already in usw
+- Check if port is already in use
+- Add version as flag to bootstrap server and m3s
 
 ## v0.2.0
 

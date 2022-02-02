@@ -16,6 +16,7 @@ help:
 	    @echo ""
 	    @echo "Makefile commands:"
 	    @echo "build"
+			@echo "build-bin"
 	    @echo "all"
 			@echo "publish"
 			@echo ${TAG}
@@ -25,6 +26,10 @@ help:
 build:
 	@echo ">>>> Build docker image and publish it to private repo"
 	@docker buildx build --build-arg TAG=${TAG} --build-arg BUILDDATE=${BUILDDATE} -t ${IMAGEFULLNAME}:${BRANCH} --push .
+
+build-bin:
+	@echo ">>>> Build binary"
+	@CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags "-X main.BuildVersion=${BUILDDATE} -X main.GitVersion=${TAG} -extldflags \"-static\"" .
 
 bootstrap:
 	@echo ">>>> Build bootstrap"
@@ -39,4 +44,10 @@ docs:
 	@echo ">>>> Build docs"
 	$(MAKE) -C $@
 
-all: bootstrap build
+version:
+	@echo ">>>> Generate version file"
+	@echo "[{ \"bootstrap_build\":\"${TAG}\", \"m3s_build\":\"${BUILDDATE}\", \"m3s_version\":\"${TAG}\"}]" > .version.json
+	@cat .version.json
+	@echo "Saved under .version.json"
+
+all: bootstrap build version

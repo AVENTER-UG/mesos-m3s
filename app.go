@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"net/http"
 
@@ -49,6 +50,15 @@ func decodeBase64Cert(pemCert string) []byte {
 }
 
 func main() {
+	// Prints out current version
+	var version bool
+	flag.BoolVar(&version, "v", false, "Prints current version")
+	flag.Parse()
+	if version {
+		fmt.Print(GitVersion)
+		return
+	}
+
 	util.SetLogging(config.LogLevel, config.EnableSyslog, config.AppName)
 	logrus.Println(config.AppName + " build " + BuildVersion + " git " + GitVersion)
 

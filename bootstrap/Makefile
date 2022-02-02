@@ -2,6 +2,9 @@
 
 .PHONY: help build all
 
+TAG=`git describe`
+BUILDDATE=`date -u +%Y-%m-%dT%H:%M:%SZ`
+
 help:
 	    @echo "Makefile arguments:"
 	    @echo ""
@@ -12,6 +15,6 @@ help:
 .DEFAULT_GOAL := all
 
 build:
-	@CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -ldflags "-X main.MinVersion=`date -u +%Y%m%d%.H%M%S` -extldflags \"-static\"" -o server server.go
+	@CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags "-X main.BuildVersion=${BUILDDATE} -X main.GitVersion=${TAG} -extldflags \"-static\"" -o server server.go
 
 all: build
