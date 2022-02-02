@@ -11,3 +11,4 @@ bootstrap/*.db-wal
 mesos_cli/m3s/__pycache__
 ssl/
 vendor/
+mesos-m3s
