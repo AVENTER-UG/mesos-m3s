@@ -23,6 +23,9 @@ var BuildVersion string
 // GitVersion is the revision and commit number
 var GitVersion string
 
+// VersionURL is the URL of the .version.json file
+var VersionURL string
+
 // DashboardInstalled is true if the dashboard is already installed
 var DashboardInstalled bool
 
@@ -58,7 +61,7 @@ func APIUpdate(w http.ResponseWriter, r *http.Request) {
 
 	// check first if there is a update
 	client := &http.Client{}
-	req, _ := http.NewRequest("GET", "https://raw.githubusercontent.com/AVENTER-UG/mesos-m3s/master/.version.json", nil)
+	req, _ := http.NewRequest("GET", VersionURL, nil)
 	req.Close = true
 	res, err := client.Do(req)
 

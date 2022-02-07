@@ -9,7 +9,8 @@ RUN apk add git && \
 
 ARG TAG
 ARG BUILDDATE
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags "-X main.BuildVersion=$BUILDDATE -X main.GitVersion=$TAG -extldflags \"-static\"" -o main .
+ARG VERSION_URL
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags "-X main.BuildVersion=$BUILDDATE -X main.GitVersion=$TAG -X main.VersionURL=$VERSION_URL -extldflags \"-static\"" -o main .
 
 
 FROM alpine

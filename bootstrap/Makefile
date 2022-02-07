@@ -4,6 +4,9 @@
 
 TAG=`git describe`
 BUILDDATE=`date -u +%Y-%m-%dT%H:%M:%SZ`
+BRANCH=`git symbolic-ref --short HEAD`
+VERSION_URL=https://raw.githubusercontent.com/AVENTER-UG/mesos-m3s/${BRANCH}/bootstrap/.version.json
+
 
 help:
 	    @echo "Makefile arguments:"
@@ -15,6 +18,12 @@ help:
 .DEFAULT_GOAL := all
 
 build:
-	@CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags "-X main.BuildVersion=${BUILDDATE} -X main.GitVersion=${TAG} -extldflags \"-static\"" -o server server.go
+	@CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags "-X main.BuildVersion=${BUILDDATE} -X main.GitVersion=${TAG} -X main.VersionURL=${VERSION_URL} -extldflags \"-static\"" -o server server.go
 
-all: build
+version:
+	@echo ">>>> Generate version file"
+	@echo "[{\"bootstrapVersion\": {	\"gitVersion\": \"${TAG}\",	\"buildDate\": \"${BUILDDATE}\"}}]" > .version.json
+	@cat .version.json
+	@echo "Saved under .version.json"
+
+all: build version
