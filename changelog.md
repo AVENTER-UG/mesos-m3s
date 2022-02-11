@@ -16,6 +16,7 @@
 - Optimize framework suppress
 - Check if port is already in use
 - Add version as flag to bootstrap server and m3s
+- IMPORTANT!!! Change all API Calls URL's.
 
 ## v0.2.0
 

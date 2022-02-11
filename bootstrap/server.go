@@ -37,12 +37,12 @@ func Commands() *mux.Router {
 	// Connect with database
 
 	rtr := mux.NewRouter()
-	rtr.HandleFunc("/versions", APIVersions).Methods("GET")
-	rtr.HandleFunc("/update", APIUpdate).Methods("PUT")
-	rtr.HandleFunc("/status", APIHealth).Methods("GET")
-	rtr.HandleFunc("/api/k3s/v0/config", APIGetKubeConfig).Methods("GET")
-	rtr.HandleFunc("/api/k3s/v0/version", APIGetKubeVersion).Methods("GET")
-	rtr.HandleFunc("/status?verbose", APIStatus).Methods("GET")
+	rtr.HandleFunc("/api/m3s/bootstrap/versions", APIVersions).Methods("GET")
+	rtr.HandleFunc("/api/m3s/bootstrap/v0/update", APIUpdate).Methods("PUT")
+	rtr.HandleFunc("/api/m3s/bootstrap/v0/status", APIHealth).Methods("GET")
+	rtr.HandleFunc("/api/m3s/bootstrap/v0/config", APIGetKubeConfig).Methods("GET")
+	rtr.HandleFunc("/api/m3s/bootstrap/v0/version", APIGetKubeVersion).Methods("GET")
+	rtr.HandleFunc("/api/m3s/bootstrap/v0/status?verbose", APIStatus).Methods("GET")
 
 	return rtr
 }

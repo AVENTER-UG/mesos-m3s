@@ -22,7 +22,7 @@ func V0StatusK8s(w http.ResponseWriter, r *http.Request) {
 	}
 
 	client := &http.Client{}
-	req, _ := http.NewRequest("GET", "http://"+config.M3SBootstrapServerHostname+":"+strconv.Itoa(config.M3SBootstrapServerPort)+"/status?verbose", nil)
+	req, _ := http.NewRequest("GET", "http://"+config.M3SBootstrapServerHostname+":"+strconv.Itoa(config.M3SBootstrapServerPort)+"api/m3s/bootstrap/v0/status?verbose", nil)
 	req.Close = true
 	res, err := client.Do(req)
 

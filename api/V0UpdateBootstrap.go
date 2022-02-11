@@ -21,7 +21,7 @@ func V0UpdateBootstrap(w http.ResponseWriter, r *http.Request) {
 	}
 
 	client := &http.Client{}
-	req, _ := http.NewRequest("PUT", "http://"+config.M3SBootstrapServerHostname+":"+strconv.Itoa(config.M3SBootstrapServerPort)+"/update", nil)
+	req, _ := http.NewRequest("PUT", "http://"+config.M3SBootstrapServerHostname+":"+strconv.Itoa(config.M3SBootstrapServerPort)+"/api/m3s/bootstrap/v0/update", nil)
 	req.Close = true
 	res, err := client.Do(req)
 
