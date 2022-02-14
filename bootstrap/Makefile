@@ -26,4 +26,8 @@ version:
 	@cat .version.json
 	@echo "Saved under .version.json"
 
-all: build version
+gen-files:
+	@echo ">>>> Generate Bootstrap and Update Script"
+	@BRANCH=`git symbolic-ref --short HEAD` envsubst < bootstrap.ini > bootstrap.sh
+
+all: version gen-files build

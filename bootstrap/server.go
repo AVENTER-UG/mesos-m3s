@@ -15,6 +15,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	cfg "github.com/AVENTER-UG/mesos-m3s/types"
+	chkVersion "github.com/hashicorp/go-version"
 )
 
 // BuildVersion of m3s
@@ -51,7 +52,7 @@ func Commands() *mux.Router {
 func APIVersions(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	w.Header().Set("Api-Service", "-")
-	w.Write([]byte("/api/k3s/v0"))
+	w.Write([]byte("/api/m3s/v0"))
 }
 
 // APIUpdate do a update of the bootstrap server
@@ -96,7 +97,10 @@ func APIUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check if the current Version diffs to the online version. If yes, then start the update.
-	if version.BootstrapVersion.GitVersion != GitVersion {
+	newVersion, _ := chkVersion.NewVersion(version.BootstrapVersion.GitVersion)
+	currentVersion, _ := chkVersion.NewVersion(GitVersion)
+
+	if currentVersion.LessThan(newVersion) {
 		w.Write([]byte("Start bootstrap server update"))
 		logrus.Info("Start update")
 		// #nosec: G204

@@ -10,24 +10,29 @@ IMAGEFULLNAMEPUB=avhost/${IMAGENAME}
 BRANCH=`git symbolic-ref --short HEAD`
 VERSION_URL=https://raw.githubusercontent.com/AVENTER-UG/mesos-m3s/${BRANCH}/.version.json
 
-.PHONY: help build bootstrap all docs
+.PHONY: help build bootstrap all docs publish push version
 
 help:
 	    @echo "Makefile arguments:"
 	    @echo ""
 	    @echo "Makefile commands:"
+			@echo "push"
 	    @echo "build"
 			@echo "build-bin"
 	    @echo "all"
 			@echo "docs"
 			@echo "publish"
+			@echo "version"
 			@echo ${TAG}
 
 .DEFAULT_GOAL := all
 
 build:
-	@echo ">>>> Build docker image and publish it to private repo"
+	@echo ">>>> Build docker image"
 	@docker buildx build --build-arg TAG=${TAG} --build-arg BUILDDATE=${BUILDDATE} --build-arg VERSION_URL=${VERSION_URL} -t ${IMAGEFULLNAME}:${BRANCH} .
+
+push:
+	@echo ">>>> Push into private repo"
 	@docker push localhost:5000/mesos-m3s:dev
 
 build-bin:
