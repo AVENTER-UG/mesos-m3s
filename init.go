@@ -35,7 +35,7 @@ func init() {
 	framework.PortRangeTo, _ = strconv.Atoi(util.Getenv("PORTRANGE_TO", "32000"))
 	config.Principal = os.Getenv("MESOS_PRINCIPAL")
 	config.LogLevel = util.Getenv("LOGLEVEL", "info")
-	config.Domain = util.Getenv("DOMAIN", "local")
+	config.Domain = util.Getenv("DOMAIN", "")
 	config.K3SAgentMax, _ = strconv.Atoi(util.Getenv("K3S_AGENT_COUNT", "1"))
 	config.K3SServerMax, _ = strconv.Atoi(util.Getenv("K3S_SERVER_COUNT", "1"))
 	config.Credentials.Username = os.Getenv("AUTH_USERNAME")
