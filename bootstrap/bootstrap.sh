@@ -22,8 +22,7 @@ done
 
 
 update-alternatives --set iptables /usr/sbin/iptables-legacy
-curl -sfL https://github.com/k3s-io/k3s/releases/download/${INSTALL_K3S_VERSION}/k3s --output /usr/local/bin/k3s
-chmod +x /usr/local/bin/k3s
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=${INSTALL_K3S_VERSION} sh -
 curl https://raw.githubusercontent.com/AVENTER-UG/mesos-m3s/${BRANCH}/bootstrap/dashboard_auth.yaml > $MESOS_SANDBOX/dashboard_auth.yaml
 curl https://raw.githubusercontent.com/AVENTER-UG/mesos-m3s/${BRANCH}/bootstrap/dashboard_traefik.yaml > $MESOS_SANDBOX/dashboard_traefik.yaml
 curl https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml > $MESOS_SANDBOX/dashboard.yaml
