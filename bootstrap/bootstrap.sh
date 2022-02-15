@@ -7,35 +7,37 @@ apt-get install -y jq containerd dnsmasq containernetworking-plugins tcpdump cur
 mkdir -p /etc/cni/net.d
 
 export KUBERNETES_VERSION=v1.21.1
-export INSTALL_K3S_VERSION=+k3s1
+export INSTALL_K3S_VERSION=$KUBERNETES_VERSION+k3s1
 export INSTALL_K3S_SKIP_ENABLE=true
 export INSTALL_K3S_SKIP_START=true
-export KUBECONFIG=/kubeconfig.yaml
+export KUBECONFIG=$MESOS_SANDBOX/kubeconfig.yaml
+export BRANCH=dev
 
 ## Export json as environment variables
 ## example: MESOS_SANDBOX_VAR='{ "CUSTOMER":"test-ltd" }'
-## echo  >> test-ltd
-for s in $(echo  | jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ); do
-  export
+## echo $CUSTOMER >> test-ltd
+for s in $(echo $MESOS_SANDBOX_VAR | jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" ); do
+  export $s
 done
 
 
 update-alternatives --set iptables /usr/sbin/iptables-legacy
-curl -sfL https://get.k3s.io | sh -
-curl https://raw.githubusercontent.com/AVENTER-UG/mesos-m3s/dev/bootstrap/dashboard_auth.yaml > /dashboard_auth.yaml
-curl https://raw.githubusercontent.com/AVENTER-UG/mesos-m3s/dev/bootstrap/dashboard_traefik.yaml > /dashboard_traefik.yaml
-curl https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml > /dashboard.yaml
-if [[ "" == "server" ]]
+curl -sfL https://github.com/k3s-io/k3s/releases/download/${INSTALL_K3S_VERSION}/k3s --output /usr/local/bin/k3s
+chmod +x /usr/local/bin/k3s
+curl https://raw.githubusercontent.com/AVENTER-UG/mesos-m3s/${BRANCH}/bootstrap/dashboard_auth.yaml > $MESOS_SANDBOX/dashboard_auth.yaml
+curl https://raw.githubusercontent.com/AVENTER-UG/mesos-m3s/${BRANCH}/bootstrap/dashboard_traefik.yaml > $MESOS_SANDBOX/dashboard_traefik.yaml
+curl https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml > $MESOS_SANDBOX/dashboard.yaml
+if [[ "$K3SFRAMEWORK_TYPE" == "server" ]]
 then
-  curl -L http://dl.k8s.io/release//bin/linux/amd64/kubectl > /kubectl
-  curl https://raw.githubusercontent.com/AVENTER-UG/mesos-m3s/dev/bootstrap/server > /server
-  curl https://raw.githubusercontent.com/AVENTER-UG/mesos-m3s/dev/bootstrap/update.sh > /update
-  chmod +x /kubectl
-  chmod +x /server
-  chmod +x /update
-  exec /server &
+  curl -L http://dl.k8s.io/release/$KUBERNETES_VERSION/bin/linux/amd64/kubectl > $MESOS_SANDBOX/kubectl
+  curl https://raw.githubusercontent.com/AVENTER-UG/mesos-m3s/${BRANCH}/bootstrap/server > $MESOS_SANDBOX/server
+  curl https://raw.githubusercontent.com/AVENTER-UG/mesos-m3s/${BRANCH}/bootstrap/update.sh > $MESOS_SANDBOX/update
+  chmod +x $MESOS_SANDBOX/kubectl
+  chmod +x $MESOS_SANDBOX/server
+  chmod +x $MESOS_SANDBOX/update
+  exec $MESOS_SANDBOX/server &
 fi
-if [[ "" == "agent" ]]
+if [[ "$K3SFRAMEWORK_TYPE" == "agent" ]]
 then
   echo "These place you can use to manipulate the configuration of containerd (as example)."
 fi

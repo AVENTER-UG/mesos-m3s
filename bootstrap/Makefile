@@ -2,9 +2,9 @@
 
 .PHONY: help build all
 
-TAG=`git describe`
-BUILDDATE=`date -u +%Y-%m-%dT%H:%M:%SZ`
-BRANCH=`git symbolic-ref --short HEAD`
+TAG=$(shell git describe)
+BUILDDATE=$(shell date -u +%Y-%m-%dT%H:%M:%SZ)
+BRANCH=$(shell git symbolic-ref --short HEAD)
 VERSION_URL=https://raw.githubusercontent.com/AVENTER-UG/mesos-m3s/${BRANCH}/bootstrap/.version.json
 
 
@@ -28,6 +28,7 @@ version:
 
 gen-files:
 	@echo ">>>> Generate Bootstrap and Update Script"
-	@BRANCH=`git symbolic-ref --short HEAD` envsubst < bootstrap.ini > bootstrap.sh
+	@sed -si 's/^export BRANCH=.*/export BRANCH=${BRANCH}/' bootstrap.sh
+	@sed -si 's/^export BRANCH=.*/export BRANCH=${BRANCH}/' update.sh
 
 all: version gen-files build
