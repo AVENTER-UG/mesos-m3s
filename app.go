@@ -67,6 +67,9 @@ func main() {
 	failoverTimeout := 5000.0
 	checkpoint := true
 	webuiurl := fmt.Sprintf("http://%s%s", framework.FrameworkHostname, listen)
+	if config.SSLCrt != "" && config.SSLKey != "" {
+		webuiurl = fmt.Sprintf("https://%s%s", framework.FrameworkHostname, listen)
+	}
 
 	framework.CommandChan = make(chan mesosutil.Command, 100)
 	config.Hostname = framework.FrameworkHostname

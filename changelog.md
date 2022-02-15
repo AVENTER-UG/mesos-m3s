@@ -17,6 +17,7 @@
 - Check if port is already in use
 - Add version as flag to bootstrap server and m3s
 - IMPORTANT!!! Change all API Calls URL's.
+- Add Docker Network (`docker network create`) support. The configuration variable ist "DOCKER_CNI".
 
 ## v0.2.0
 

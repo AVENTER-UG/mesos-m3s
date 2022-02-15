@@ -48,6 +48,19 @@ func StartEtcd(taskID string) {
 	cmd.TaskName = framework.FrameworkName + ":etcd"
 	cmd.Hostname = framework.FrameworkName + "etcd" + "." + config.Domain
 	cmd.DockerParameter = []mesosproto.Parameter{}
+	// if mesos cni is unset, then use docker cni
+	if framework.MesosCNI == "" {
+		cmd.DockerParameter = []mesosproto.Parameter{
+			{
+				Key:   "net",
+				Value: config.DockerCNI,
+			},
+			{
+				Key:   "net-alias",
+				Value: framework.FrameworkName + "etcd",
+			},
+		}
+	}
 
 	AllowNoneAuthentication := "yes"
 	AdvertiseURL := "http://" + cmd.Hostname + ":2379"

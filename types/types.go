@@ -59,6 +59,7 @@ type Config struct {
 	SSLCrt                      string
 	Version                     M3SVersion
 	Suppress                    bool
+	DockerCNI                   string
 }
 
 // M3SStatus store the current TaskState of the M3s services

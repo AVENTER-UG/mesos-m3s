@@ -125,12 +125,22 @@ func Subscribe() error {
 }
 
 // Generate random host portnumber
-func getRandomHostPort() uint32 {
+func getRandomHostPort(num int) uint32 {
 	// search two free ports
 	for i := framework.PortRangeFrom; i < framework.PortRangeTo; i++ {
 		port := uint32(i)
-		if !portInUse(port, "server") && !portInUse(port, "agent") &&
-			!portInUse(port+1, "server") && !portInUse(port+1, "agent") {
+		use := false
+		for x := 0; x < num; x++ {
+			if portInUse(port+uint32(x), "server") || portInUse(port+uint32(x), "agent") {
+				tmp := use || true
+				use = tmp
+				x = num
+			}
+
+			tmp := use || false
+			use = tmp
+		}
+		if !use {
 			return port
 		}
 	}
@@ -153,6 +163,7 @@ func portInUse(port uint32, service string) bool {
 		if ports != nil {
 			for _, hostport := range ports.GetPorts() {
 				if hostport.Number == port {
+					logrus.Debug("Port in use: ", port, service)
 					return true
 				}
 			}

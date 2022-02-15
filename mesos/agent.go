@@ -21,7 +21,7 @@ func StartK3SAgent(taskID string) {
 		newTaskID, _ = util.GenUUID()
 	}
 
-	hostport := getRandomHostPort()
+	hostport := getRandomHostPort(2)
 	if hostport == 0 {
 		logrus.WithField("func", "StartK3SAgent").Error("Could not find free ports")
 		return
@@ -57,11 +57,29 @@ func StartK3SAgent(taskID string) {
 	cmd.TaskName = framework.FrameworkName + ":agent"
 	cmd.Hostname = framework.FrameworkName + "agent" + "." + config.Domain
 	cmd.Command = "$MESOS_SANDBOX/bootstrap '" + config.K3SAgentString + " --with-node-id " + newTaskID + "'"
-	cmd.DockerParameter = []mesosproto.Parameter{
-		{
-			Key:   "cap-add",
-			Value: "NET_ADMIN",
-		},
+	// if mesos cni is unset, then use docker cni
+	if framework.MesosCNI == "" {
+		cmd.DockerParameter = []mesosproto.Parameter{
+			{
+				Key:   "cap-add",
+				Value: "NET_ADMIN",
+			},
+			{
+				Key:   "net",
+				Value: config.DockerCNI,
+			},
+			{
+				Key:   "net-alias",
+				Value: framework.FrameworkName + "agent",
+			},
+		}
+	} else {
+		cmd.DockerParameter = []mesosproto.Parameter{
+			{
+				Key:   "cap-add",
+				Value: "NET_ADMIN",
+			},
+		}
 	}
 	cmd.Uris = []mesosproto.CommandInfo_URI{
 		{

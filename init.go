@@ -30,12 +30,12 @@ func init() {
 	framework.Username = os.Getenv("MESOS_USERNAME")
 	framework.Password = os.Getenv("MESOS_PASSWORD")
 	framework.MesosMasterServer = os.Getenv("MESOS_MASTER")
-	framework.MesosCNI = util.Getenv("MESOS_CNI", "weave")
+	framework.MesosCNI = os.Getenv("MESOS_CNI")
 	framework.PortRangeFrom, _ = strconv.Atoi(util.Getenv("PORTRANGE_FROM", "31000"))
 	framework.PortRangeTo, _ = strconv.Atoi(util.Getenv("PORTRANGE_TO", "32000"))
 	config.Principal = os.Getenv("MESOS_PRINCIPAL")
 	config.LogLevel = util.Getenv("LOGLEVEL", "info")
-	config.Domain = util.Getenv("DOMAIN", "")
+	config.Domain = util.Getenv("DOMAIN", "local")
 	config.K3SAgentMax, _ = strconv.Atoi(util.Getenv("K3S_AGENT_COUNT", "1"))
 	config.K3SServerMax, _ = strconv.Atoi(util.Getenv("K3S_SERVER_COUNT", "1"))
 	config.Credentials.Username = os.Getenv("AUTH_USERNAME")
@@ -62,6 +62,7 @@ func init() {
 	config.RedisDB, _ = strconv.Atoi(util.Getenv("REDIS_DB", "1"))
 	config.SSLKey = os.Getenv("SSL_KEY_BASE64")
 	config.SSLCrt = os.Getenv("SSL_CRT_BASE64")
+	config.DockerCNI = util.Getenv("DOCKER_CNI", "bridge")
 
 	// if labels are set, unmarshel it into the Mesos Label format.
 	labels := os.Getenv("K3S_AGENT_LABELS")

@@ -40,11 +40,29 @@ func StartK3SServer(taskID string) {
 	cmd.TaskName = framework.FrameworkName + ":server"
 	cmd.Hostname = framework.FrameworkName + "server" + "." + config.Domain
 	cmd.Command = "$MESOS_SANDBOX/bootstrap '" + config.K3SServerString + "--tls-san=" + config.Domain + "'"
-	cmd.DockerParameter = []mesosproto.Parameter{
-		{
-			Key:   "cap-add",
-			Value: "NET_ADMIN",
-		},
+	// if mesos cni is unset, then use docker cni
+	if framework.MesosCNI == "" {
+		cmd.DockerParameter = []mesosproto.Parameter{
+			{
+				Key:   "cap-add",
+				Value: "NET_ADMIN",
+			},
+			{
+				Key:   "net",
+				Value: config.DockerCNI,
+			},
+			{
+				Key:   "net-alias",
+				Value: framework.FrameworkName + "server",
+			},
+		}
+	} else {
+		cmd.DockerParameter = []mesosproto.Parameter{
+			{
+				Key:   "cap-add",
+				Value: "NET_ADMIN",
+			},
+		}
 	}
 
 	cmd.Uris = []mesosproto.CommandInfo_URI{
@@ -81,7 +99,7 @@ func StartK3SServer(taskID string) {
 	}
 
 	// get free hostport. If there is no one, do not start
-	hostport := getRandomHostPort()
+	hostport := getRandomHostPort(3)
 	if hostport == 0 {
 		logrus.WithField("func", "StartK3SServer").Error("Could not find free ports")
 		return
@@ -119,6 +137,11 @@ func StartK3SServer(taskID string) {
 					Number:   cmd.DockerPortMappings[1].HostPort,
 					Name:     func() *string { x := "kubernetes"; return &x }(),
 					Protocol: cmd.DockerPortMappings[1].Protocol,
+				},
+				{
+					Number:   cmd.DockerPortMappings[2].HostPort,
+					Name:     func() *string { x := "http"; return &x }(),
+					Protocol: cmd.DockerPortMappings[2].Protocol,
 				},
 			},
 		},
@@ -184,7 +207,7 @@ func CreateK3SServerString() {
 // IsK3SServerRunning check if the kubernetes server is already running
 func IsK3SServerRunning() bool {
 	client := &http.Client{}
-	req, _ := http.NewRequest("GET", "http://"+config.M3SBootstrapServerHostname+":"+strconv.Itoa(config.M3SBootstrapServerPort)+"/status", nil)
+	req, _ := http.NewRequest("GET", "http://"+config.M3SBootstrapServerHostname+":"+strconv.Itoa(config.M3SBootstrapServerPort)+"/api/m3s/bootstrap/v0/status", nil)
 	req.Close = true
 	res, err := client.Do(req)
 
