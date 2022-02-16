@@ -52,35 +52,25 @@ func StartK3SAgent(taskID string) {
 
 	cmd.Shell = true
 	cmd.Privileged = true
-	cmd.Memory = config.K3SMEM
-	cmd.CPU = config.K3SCPU
+	cmd.Memory = config.K3SAgentMEM
+	cmd.CPU = config.K3SAgentCPU
 	cmd.TaskName = framework.FrameworkName + ":agent"
-	cmd.Hostname = framework.FrameworkName + "agent" + "." + config.Domain
+	cmd.Hostname = framework.FrameworkName + "agent" + config.Domain
 	cmd.Command = "$MESOS_SANDBOX/bootstrap '" + config.K3SAgentString + " --with-node-id " + newTaskID + "'"
+	cmd.DockerParameter = []mesosproto.Parameter{}
+	cmd.DockerParameter[0].Key = "cap-add"
+	cmd.DockerParameter[0].Value = "NET_ADMIN"
 	// if mesos cni is unset, then use docker cni
 	if framework.MesosCNI == "" {
-		cmd.DockerParameter = []mesosproto.Parameter{
-			{
-				Key:   "cap-add",
-				Value: "NET_ADMIN",
-			},
-			{
-				Key:   "net",
-				Value: config.DockerCNI,
-			},
-			{
-				Key:   "net-alias",
-				Value: framework.FrameworkName + "agent",
-			},
-		}
-	} else {
-		cmd.DockerParameter = []mesosproto.Parameter{
-			{
-				Key:   "cap-add",
-				Value: "NET_ADMIN",
-			},
+		cmd.DockerParameter[1].Key = "net"
+		cmd.DockerParameter[1].Value = config.DockerCNI
+		// net-alias is only supported onuser-defined networks
+		if config.DockerCNI != "bridge" {
+			cmd.DockerParameter[2].Key = "net-alias"
+			cmd.DockerParameter[2].Value = framework.FrameworkName + "agent"
 		}
 	}
+
 	cmd.Uris = []mesosproto.CommandInfo_URI{
 		{
 			Value:      config.BootstrapURL,

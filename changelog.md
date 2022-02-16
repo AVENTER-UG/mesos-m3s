@@ -18,6 +18,7 @@
 - Add version as flag to bootstrap server and m3s
 - IMPORTANT!!! Change all API Calls URL's.
 - Add Docker Network (`docker network create`) support. The configuration variable ist "DOCKER_CNI".
+- Seperate K3S Server and Agent Memory and CPU resource definition.
 
 ## v0.2.0
 

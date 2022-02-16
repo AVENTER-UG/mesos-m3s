@@ -12,9 +12,9 @@ import (
 func defaultResources(cmd mesosutil.Command) []mesosproto.Resource {
 	CPU := "cpus"
 	MEM := "mem"
+	PORT := "ports"
 	cpu := cmd.CPU
 	mem := cmd.Memory
-	PORT := "ports"
 
 	res := []mesosproto.Resource{
 		{

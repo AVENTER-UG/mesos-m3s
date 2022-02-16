@@ -45,20 +45,19 @@ func StartEtcd(taskID string) {
 	cmd.Privileged = false
 	cmd.Memory = config.ETCDMEM
 	cmd.CPU = config.ETCDCPU
+	cmd.Disk = config.ETCDDISK
 	cmd.TaskName = framework.FrameworkName + ":etcd"
-	cmd.Hostname = framework.FrameworkName + "etcd" + "." + config.Domain
-	cmd.DockerParameter = []mesosproto.Parameter{}
+	cmd.Hostname = framework.FrameworkName + "etcd" + config.Domain
+	cmd.DockerParameter[0].Key = "cap-add"
+	cmd.DockerParameter[0].Value = "NET_ADMIN"
 	// if mesos cni is unset, then use docker cni
 	if framework.MesosCNI == "" {
-		cmd.DockerParameter = []mesosproto.Parameter{
-			{
-				Key:   "net",
-				Value: config.DockerCNI,
-			},
-			{
-				Key:   "net-alias",
-				Value: framework.FrameworkName + "etcd",
-			},
+		cmd.DockerParameter[1].Key = "net"
+		cmd.DockerParameter[1].Value = config.DockerCNI
+		// net-alias is only supported onuser-defined networks
+		if config.DockerCNI != "bridge" {
+			cmd.DockerParameter[2].Key = "net-alias"
+			cmd.DockerParameter[2].Value = framework.FrameworkName + "etcd"
 		}
 	}
 

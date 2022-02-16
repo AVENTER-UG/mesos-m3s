@@ -35,33 +35,21 @@ func StartK3SServer(taskID string) {
 	cmd.Shell = true
 	cmd.Privileged = true
 	cmd.ContainerImage = config.ImageK3S
-	cmd.Memory = config.K3SMEM
-	cmd.CPU = config.K3SCPU
+	cmd.Memory = config.K3SServerMEM
+	cmd.CPU = config.K3SServerCPU
 	cmd.TaskName = framework.FrameworkName + ":server"
-	cmd.Hostname = framework.FrameworkName + "server" + "." + config.Domain
-	cmd.Command = "$MESOS_SANDBOX/bootstrap '" + config.K3SServerString + "--tls-san=" + config.Domain + "'"
+	cmd.Hostname = framework.FrameworkName + "server" + config.Domain
+	cmd.Command = "$MESOS_SANDBOX/bootstrap '" + config.K3SServerString + " --tls-san=" + framework.FrameworkName + "server'"
+	cmd.DockerParameter[0].Key = "cap-add"
+	cmd.DockerParameter[0].Value = "NET_ADMIN"
 	// if mesos cni is unset, then use docker cni
 	if framework.MesosCNI == "" {
-		cmd.DockerParameter = []mesosproto.Parameter{
-			{
-				Key:   "cap-add",
-				Value: "NET_ADMIN",
-			},
-			{
-				Key:   "net",
-				Value: config.DockerCNI,
-			},
-			{
-				Key:   "net-alias",
-				Value: framework.FrameworkName + "server",
-			},
-		}
-	} else {
-		cmd.DockerParameter = []mesosproto.Parameter{
-			{
-				Key:   "cap-add",
-				Value: "NET_ADMIN",
-			},
+		cmd.DockerParameter[1].Key = "net"
+		cmd.DockerParameter[1].Value = config.DockerCNI
+		// net-alias is only supported onuser-defined networks
+		if config.DockerCNI != "bridge" {
+			cmd.DockerParameter[2].Key = "net-alias"
+			cmd.DockerParameter[2].Value = framework.FrameworkName + "server"
 		}
 	}
 
@@ -177,7 +165,7 @@ func StartK3SServer(taskID string) {
 		{
 			Name: "K3S_DATASTORE_ENDPOINT",
 			Value: func() *string {
-				x := "http://" + framework.FrameworkName + "etcd" + "." + config.Domain + ":2379"
+				x := "http://" + framework.FrameworkName + "etcd" + config.Domain + ":2379"
 				return &x
 			}(),
 		},
@@ -199,7 +187,7 @@ func StartK3SServer(taskID string) {
 
 // CreateK3SServerString create the K3S_URL string
 func CreateK3SServerString() {
-	server := "https://" + framework.FrameworkName + "server" + "." + config.Domain + ":6443"
+	server := "https://" + framework.FrameworkName + "server" + config.Domain + ":6443"
 
 	config.K3SServerURL = server
 }

@@ -41,10 +41,15 @@ type Config struct {
 	BootstrapURL                string
 	M3SBootstrapServerHostname  string
 	M3SBootstrapServerPort      int
-	K3SCPU                      float64
-	K3SMEM                      float64
+	K3SServerCPU                float64
+	K3SServerMEM                float64
+	K3SServerDISK               float64
+	K3SAgentCPU                 float64
+	K3SAgentMEM                 float64
+	K3SAgentDISK                float64
 	ETCDCPU                     float64
 	ETCDMEM                     float64
+	ETCDDISK                    float64
 	ETCDConstraint              string
 	ETCDConstraintHostname      string
 	M3SStatus                   M3SStatus
