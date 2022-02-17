@@ -101,6 +101,9 @@ func APIUpdate(w http.ResponseWriter, r *http.Request) {
 	newVersion, _ := chkVersion.NewVersion(version.BootstrapVersion.GitVersion)
 	currentVersion, _ := chkVersion.NewVersion(GitVersion)
 
+	logrus.Info("APIUpdate newVersion: ", newVersion)
+	logrus.Info("APIUpdate currentVersion: ", currentVersion)
+
 	if currentVersion.LessThan(newVersion) {
 		w.Write([]byte("Start bootstrap server update"))
 		logrus.Info("Start update")
