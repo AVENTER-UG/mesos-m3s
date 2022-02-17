@@ -57,7 +57,7 @@ func StartK3SAgent(taskID string) {
 	cmd.TaskName = framework.FrameworkName + ":agent"
 	cmd.Hostname = framework.FrameworkName + "agent" + config.Domain
 	cmd.Command = "$MESOS_SANDBOX/bootstrap '" + config.K3SAgentString + " --with-node-id " + newTaskID + "'"
-	cmd.DockerParameter = []mesosproto.Parameter{}
+	cmd.DockerParameter = make([]mesosproto.Parameter, 3)
 	cmd.DockerParameter[0].Key = "cap-add"
 	cmd.DockerParameter[0].Value = "NET_ADMIN"
 	// if mesos cni is unset, then use docker cni

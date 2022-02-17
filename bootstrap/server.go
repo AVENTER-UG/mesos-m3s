@@ -61,6 +61,7 @@ func APIUpdate(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Api-Service", "v0")
 
 	// check first if there is a update
+	logrus.Info("Get version file: ", VersionURL)
 	client := &http.Client{}
 	req, _ := http.NewRequest("GET", VersionURL, nil)
 	req.Close = true

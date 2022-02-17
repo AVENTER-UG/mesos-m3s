@@ -40,6 +40,7 @@ func StartK3SServer(taskID string) {
 	cmd.TaskName = framework.FrameworkName + ":server"
 	cmd.Hostname = framework.FrameworkName + "server" + config.Domain
 	cmd.Command = "$MESOS_SANDBOX/bootstrap '" + config.K3SServerString + " --tls-san=" + framework.FrameworkName + "server'"
+	cmd.DockerParameter = make([]mesosproto.Parameter, 3)
 	cmd.DockerParameter[0].Key = "cap-add"
 	cmd.DockerParameter[0].Value = "NET_ADMIN"
 	// if mesos cni is unset, then use docker cni

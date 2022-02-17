@@ -48,6 +48,7 @@ func StartEtcd(taskID string) {
 	cmd.Disk = config.ETCDDISK
 	cmd.TaskName = framework.FrameworkName + ":etcd"
 	cmd.Hostname = framework.FrameworkName + "etcd" + config.Domain
+	cmd.DockerParameter = make([]mesosproto.Parameter, 3)
 	cmd.DockerParameter[0].Key = "cap-add"
 	cmd.DockerParameter[0].Value = "NET_ADMIN"
 	// if mesos cni is unset, then use docker cni
