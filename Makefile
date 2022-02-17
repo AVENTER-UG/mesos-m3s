@@ -54,7 +54,7 @@ docs:
 
 version:
 	@echo ">>>> Generate version file"
-	@echo "[{\"m3sVersion\": {	\"gitVersion\": \"${TAG}\",	\"buildDate\": \"${BUILDDATE}\"}}]" > .version.json
+	@echo "{\"m3sVersion\": {	\"gitVersion\": \"${TAG}\",	\"buildDate\": \"${BUILDDATE}\"}}" > .version.json
 	@cat .version.json
 	@echo "Saved under .version.json"
 
