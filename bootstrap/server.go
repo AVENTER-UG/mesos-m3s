@@ -80,7 +80,7 @@ func APIUpdate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, err := ioutil.ReadAll(r.Body)
+	body, err := ioutil.ReadAll(res.Body)
 
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
