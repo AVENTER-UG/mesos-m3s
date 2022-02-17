@@ -22,7 +22,7 @@ build:
 
 version:
 	@echo ">>>> Generate version file"
-	@echo "[{\"bootstrapVersion\": {	\"gitVersion\": \"${TAG}\",	\"buildDate\": \"${BUILDDATE}\"}}]" > .version.json
+	@echo "{\"bootstrapVersion\": {	\"gitVersion\": \"${TAG}\",	\"buildDate\": \"${BUILDDATE}\"}}" > .version.json
 	@cat .version.json
 	@echo "Saved under .version.json"
 
