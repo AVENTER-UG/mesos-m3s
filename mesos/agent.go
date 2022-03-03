@@ -32,7 +32,6 @@ func StartK3SAgent(taskID string) {
 
 	cmd.ContainerType = "DOCKER"
 	cmd.ContainerImage = config.ImageK3S
-	cmd.NetworkMode = "bridge"
 	cmd.NetworkInfo = []mesosproto.NetworkInfo{{
 		Name: &framework.MesosCNI,
 	}}
@@ -60,9 +59,9 @@ func StartK3SAgent(taskID string) {
 	cmd.DockerParameter = addDockerParameter(make([]mesosproto.Parameter, 0), mesosproto.Parameter{Key: "cap-add", Value: "NET_ADMIN"})
 	// if mesos cni is unset, then use docker cni
 	if framework.MesosCNI == "" {
-		cmd.DockerParameter = addDockerParameter(cmd.DockerParameter, mesosproto.Parameter{Key: "net", Value: config.DockerCNI})
 		// net-alias is only supported onuser-defined networks
 		if config.DockerCNI != "bridge" {
+			cmd.DockerParameter = addDockerParameter(cmd.DockerParameter, mesosproto.Parameter{Key: "net", Value: config.DockerCNI})
 			cmd.DockerParameter = addDockerParameter(cmd.DockerParameter, mesosproto.Parameter{Key: "net-alias", Value: framework.FrameworkName + "agent"})
 		}
 	}

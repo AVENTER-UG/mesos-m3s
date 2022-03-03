@@ -115,11 +115,12 @@ func prepareTaskInfoExecuteContainer(agent mesosproto.AgentID, cmd mesosutil.Com
 		Volumes:  cmd.Volumes,
 		Hostname: &cmd.Hostname,
 		Docker: &mesosproto.ContainerInfo_DockerInfo{
-			Image:        cmd.ContainerImage,
-			Network:      networkMode,
-			PortMappings: cmd.DockerPortMappings,
-			Privileged:   &cmd.Privileged,
-			Parameters:   cmd.DockerParameter,
+			Image:          cmd.ContainerImage,
+			Network:        networkMode,
+			PortMappings:   cmd.DockerPortMappings,
+			Privileged:     &cmd.Privileged,
+			Parameters:     cmd.DockerParameter,
+			ForcePullImage: func() *bool { x := true; return &x }(),
 		},
 		NetworkInfos: cmd.NetworkInfo,
 	}
