@@ -19,15 +19,6 @@ for s in $(echo $MESOS_SANDBOX_VAR | jq -r "to_entries|map(\"\(.key)=\(.value|to
   export $s
 done
 
-
-set -o errexit -o nounset -o pipefail -o verbose
-
-CGROUP=$(grep memory /proc/1/cgroup | cut -d: -f3)
-
-cat <<EOF > "/etc/docker/env"
-CGROUP_PARENT=${CGROUP}/docker
-EOF
-
 ## dockerd is a part of the uses avhost/ubuntu-m3s:focal docker image
 exec /usr/local/bin/dockerd &
 
