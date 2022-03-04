@@ -45,4 +45,4 @@ fi
 
 
 echo $1
-$1 --docker
+$1
