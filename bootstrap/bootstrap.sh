@@ -3,7 +3,7 @@
 cat /etc/resolv.conf
 
 apt-get update -y
-apt-get install -y jq containerd dnsmasq containernetworking-plugins tcpdump curl inetutils-ping iptables fuse-overlayfs procps bash iproute2 dnsutils net-tools systemctl
+apt-get install -y jq dnsmasq tcpdump curl inetutils-ping iptables fuse-overlayfs procps bash iproute2 dnsutils net-tools systemctl
 mkdir -p /etc/cni/net.d
 
 export KUBERNETES_VERSION=v1.21.1
@@ -22,7 +22,9 @@ done
 
 
 update-alternatives --set iptables /usr/sbin/iptables-legacy
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=${INSTALL_K3S_VERSION} INSTALL_K3S_SKIP_ENABLE=${INSTALL_K3S_SKIP_ENABLE=$} INSTALL_K3S_SKIP_START=${INSTALL_K3S_SKIP_START} sh -
+curl https://releases.rancher.com/install-docker/19.03.sh | sh
+exec /usr/bin/dockerd &
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=${INSTALL_K3S_VERSION} INSTALL_K3S_SKIP_ENABLE=${INSTALL_K3S_SKIP_ENABLE=$} INSTALL_K3S_SKIP_START=${INSTALL_K3S_SKIP_START} sh -s - --docker
 curl https://raw.githubusercontent.com/AVENTER-UG/mesos-m3s/${BRANCH}/bootstrap/dashboard_auth.yaml > $MESOS_SANDBOX/dashboard_auth.yaml
 curl https://raw.githubusercontent.com/AVENTER-UG/mesos-m3s/${BRANCH}/bootstrap/dashboard_traefik.yaml > $MESOS_SANDBOX/dashboard_traefik.yaml
 curl https://raw.githubusercontent.com/kubernetes/dashboard/v2.2.0/aio/deploy/recommended.yaml > $MESOS_SANDBOX/dashboard.yaml
@@ -43,4 +45,4 @@ fi
 
 
 echo $1
-$1
+$1 --docker
