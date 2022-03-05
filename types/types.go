@@ -38,6 +38,7 @@ type Config struct {
 	K3SToken                    string
 	ETCDMax                     int
 	DockerSock                  string
+	DockerSHMSize               string
 	BootstrapURL                string
 	M3SBootstrapServerHostname  string
 	M3SBootstrapServerPort      int

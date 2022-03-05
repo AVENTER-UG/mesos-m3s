@@ -40,6 +40,7 @@ func StartK3SServer(taskID string) {
 	cmd.Hostname = framework.FrameworkName + "server" + config.Domain
 	cmd.Command = "$MESOS_SANDBOX/bootstrap '" + config.K3SServerString + " --tls-san=" + framework.FrameworkName + "server'"
 	cmd.DockerParameter = addDockerParameter(make([]mesosproto.Parameter, 0), mesosproto.Parameter{Key: "cap-add", Value: "NET_ADMIN"})
+	cmd.DockerParameter = addDockerParameter(cmd.DockerParameter, mesosproto.Parameter{Key: "shm-size", Value: config.DockerSHMSize})
 	// if mesos cni is unset, then use docker cni
 	if framework.MesosCNI == "" {
 		// net-alias is only supported onuser-defined networks
@@ -67,16 +68,6 @@ func StartK3SServer(taskID string) {
 				DockerVolume: &mesosproto.Volume_Source_DockerVolume{
 					Driver: &config.VolumeDriver,
 					Name:   config.VolumeK3SServer,
-				},
-			},
-		},
-		{
-			ContainerPath: "/opt/cni/net.d",
-			Mode:          mesosproto.RW.Enum(),
-			Source: &mesosproto.Volume_Source{
-				Type: mesosproto.Volume_Source_DOCKER_VOLUME,
-				DockerVolume: &mesosproto.Volume_Source_DockerVolume{
-					Name: "/etc/mesos/cni/net.d",
 				},
 			},
 		},

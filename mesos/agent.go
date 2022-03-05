@@ -57,6 +57,7 @@ func StartK3SAgent(taskID string) {
 	cmd.Hostname = framework.FrameworkName + "agent" + config.Domain
 	cmd.Command = "$MESOS_SANDBOX/bootstrap '" + config.K3SAgentString + " --with-node-id " + newTaskID + "'"
 	cmd.DockerParameter = addDockerParameter(make([]mesosproto.Parameter, 0), mesosproto.Parameter{Key: "cap-add", Value: "NET_ADMIN"})
+	cmd.DockerParameter = addDockerParameter(cmd.DockerParameter, mesosproto.Parameter{Key: "shm-size", Value: config.DockerSHMSize})
 	// if mesos cni is unset, then use docker cni
 	if framework.MesosCNI == "" {
 		// net-alias is only supported onuser-defined networks
@@ -74,42 +75,6 @@ func StartK3SAgent(taskID string) {
 			Cache:      func() *bool { x := false; return &x }(),
 			OutputFile: func() *string { x := "bootstrap"; return &x }(),
 		},
-	}
-	cmd.Volumes = []mesosproto.Volume{
-		{
-			ContainerPath: "/opt/cni/net.d",
-			Mode:          mesosproto.RW.Enum(),
-			Source: &mesosproto.Volume_Source{
-				Type: mesosproto.Volume_Source_DOCKER_VOLUME,
-				DockerVolume: &mesosproto.Volume_Source_DockerVolume{
-					Name: "/etc/mesos/cni/net.d",
-				},
-			},
-		},
-	}
-	if config.DockerSock != "" {
-		cmd.Volumes = []mesosproto.Volume{
-			{
-				ContainerPath: "/var/run/docker.sock",
-				Mode:          mesosproto.RW.Enum(),
-				Source: &mesosproto.Volume_Source{
-					Type: mesosproto.Volume_Source_DOCKER_VOLUME,
-					DockerVolume: &mesosproto.Volume_Source_DockerVolume{
-						Name: config.DockerSock,
-					},
-				},
-			},
-			{
-				ContainerPath: "/opt/cni/net.d",
-				Mode:          mesosproto.RW.Enum(),
-				Source: &mesosproto.Volume_Source{
-					Type: mesosproto.Volume_Source_DOCKER_VOLUME,
-					DockerVolume: &mesosproto.Volume_Source_DockerVolume{
-						Name: "/etc/mesos/cni/net.d",
-					},
-				},
-			},
-		}
 	}
 
 	cmd.Discovery = mesosproto.DiscoveryInfo{

@@ -20,6 +20,7 @@
 - Add Docker Network (`docker network create`) support. The configuration variable ist "DOCKER_CNI".
 - Seperate K3S Server and Agent Memory and CPU resource definition.
 - Change K3S to use docker engine
+- Add DOCKER_SHM_SIZE variable to configure shm-size.
 
 ## v0.2.0
 
