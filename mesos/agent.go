@@ -55,8 +55,9 @@ func StartK3SAgent(taskID string) {
 	cmd.CPU = config.K3SAgentCPU
 	cmd.TaskName = framework.FrameworkName + ":agent"
 	cmd.Hostname = framework.FrameworkName + "agent" + config.Domain
-	cmd.Command = "$MESOS_SANDBOX/bootstrap '" + config.K3SAgentString + " --with-node-id " + newTaskID + "'"
+	cmd.Command = "$MESOS_SANDBOX/bootstrap '" + config.K3SAgentString + config.K3SDocker + " --with-node-id " + newTaskID + "'"
 	cmd.DockerParameter = addDockerParameter(make([]mesosproto.Parameter, 0), mesosproto.Parameter{Key: "cap-add", Value: "NET_ADMIN"})
+	cmd.DockerParameter = addDockerParameter(make([]mesosproto.Parameter, 0), mesosproto.Parameter{Key: "cap-add", Value: "SYS_ADMIN"})
 	cmd.DockerParameter = addDockerParameter(cmd.DockerParameter, mesosproto.Parameter{Key: "shm-size", Value: config.DockerSHMSize})
 	// if mesos cni is unset, then use docker cni
 	if framework.MesosCNI == "" {

@@ -61,7 +61,7 @@ func StartEtcd(taskID string) {
 	AllowNoneAuthentication := "yes"
 	AdvertiseURL := "http://" + cmd.Hostname + ":2379"
 
-	cmd.Command = "/opt/bitnami/etcd/bin/etcd --listen-client-urls http://0.0.0.0:2379"
+	cmd.Command = "/opt/bitnami/etcd/bin/etcd --listen-client-urls http://0.0.0.0:2379 --election-timeout '50000' --heartbeat-interval '5000'"
 
 	cmd.Environment.Variables = []mesosproto.Environment_Variable{
 		{

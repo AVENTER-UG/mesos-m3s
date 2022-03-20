@@ -42,10 +42,10 @@ func init() {
 	config.Credentials.Password = os.Getenv("AUTH_PASSWORD")
 	config.AppName = "Mesos K3S Framework"
 	config.K3SCustomDomain = util.Getenv("K3S_CUSTOM_DOMAIN", "cloud.local")
-	config.K3SServerString = util.Getenv("K3S_SERVER_STRING", "/usr/local/bin/k3s server --cluster-cidr=10.2.0.0/16 --service-cidr=10.3.0.0/16 --cluster-dns=10.3.0.10 --snapshotter=native --flannel-backend=vxlan --docker ")
-	config.K3SAgentString = util.Getenv("K3S_AGENT_STRING", "/usr/local/bin/k3s agent --snapshotter=native --flannel-backend=vxlan --docker ")
-	config.ImageK3S = util.Getenv("IMAGE_K3S", "ubuntu:focal")
-	config.ImageETCD = util.Getenv("IMAGE_ETCD", "docker.io/bitnami/etcd:latest")
+	config.K3SServerString = util.Getenv("K3S_SERVER_STRING", "/usr/local/bin/k3s server --cluster-cidr=10.2.0.0/16 --service-cidr=10.3.0.0/16 --cluster-dns=10.3.0.10  --kube-controller-manager-arg='leader-elect=false' --disable-cloud-controller --kube-scheduler-arg='leader-elect=false' --snapshotter=native --flannel-backend=vxlan ")
+	config.K3SAgentString = util.Getenv("K3S_AGENT_STRING", "/usr/local/bin/k3s agent --snapshotter=native --flannel-backend=vxlan ")
+	config.ImageK3S = util.Getenv("IMAGE_K3S", "avhost/ubuntu-m3s:focal")
+	config.ImageETCD = util.Getenv("IMAGE_ETCD", "docker.io/bitnami/etcd:3.5.1")
 	config.VolumeDriver = util.Getenv("VOLUME_DRIVER", "local")
 	config.VolumeK3SServer = util.Getenv("VOLUME_K3S_SERVER", "/data/k3s")
 	config.K3SToken = util.Getenv("K3S_TOKEN", "123456789")
@@ -116,6 +116,13 @@ func init() {
 		framework.MesosSSL = true
 	} else {
 		framework.MesosSSL = false
+	}
+
+	// Enable Docker Engine vor K3S instead critc
+	if strings.Compare(os.Getenv("K3S_DOCKER"), "true") == 0 {
+		config.K3SDocker = " --docker "
+	} else {
+		config.K3SDocker = ""
 	}
 
 	// Skip SSL Verification

@@ -38,8 +38,9 @@ func StartK3SServer(taskID string) {
 	cmd.CPU = config.K3SServerCPU
 	cmd.TaskName = framework.FrameworkName + ":server"
 	cmd.Hostname = framework.FrameworkName + "server" + config.Domain
-	cmd.Command = "$MESOS_SANDBOX/bootstrap '" + config.K3SServerString + " --tls-san=" + framework.FrameworkName + "server'"
+	cmd.Command = "$MESOS_SANDBOX/bootstrap '" + config.K3SServerString + config.K3SDocker + " --kube-controller-manager-arg='leader-elect=false' --kube-scheduler-arg='leader-elect=false' -tls-san=" + framework.FrameworkName + "server'"
 	cmd.DockerParameter = addDockerParameter(make([]mesosproto.Parameter, 0), mesosproto.Parameter{Key: "cap-add", Value: "NET_ADMIN"})
+	cmd.DockerParameter = addDockerParameter(make([]mesosproto.Parameter, 0), mesosproto.Parameter{Key: "cap-add", Value: "SYS_ADMIN"})
 	cmd.DockerParameter = addDockerParameter(cmd.DockerParameter, mesosproto.Parameter{Key: "shm-size", Value: config.DockerSHMSize})
 	// if mesos cni is unset, then use docker cni
 	if framework.MesosCNI == "" {

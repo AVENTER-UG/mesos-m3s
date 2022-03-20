@@ -48,6 +48,7 @@ type Config struct {
 	K3SAgentCPU                 float64
 	K3SAgentMEM                 float64
 	K3SAgentDISK                float64
+	K3SDocker                   string
 	ETCDCPU                     float64
 	ETCDMEM                     float64
 	ETCDDISK                    float64
