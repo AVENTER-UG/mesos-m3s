@@ -1,6 +1,6 @@
 # Changelog
 
-## master
+## v0.3.0
 
 - Add Redis Authentication Support
 - Bootstrap: Add update call to update the bootstrap server.
