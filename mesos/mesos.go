@@ -17,9 +17,14 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// Service include all the current vars and global config
-var config *cfg.Config
-var framework *mesosutil.FrameworkConfig
+// Scheduler include all the current vars and global config
+type Scheduler struct {
+	Config    *cfg.Config
+	Framework *mesosutil.FrameworkConfig
+	Client    *http.Client
+	Req       *http.Request
+	API       *api.API
+}
 
 // Marshaler to serialize Protobuf Message to JSON
 var marshaller = jsonpb.Marshaler{
@@ -28,19 +33,18 @@ var marshaller = jsonpb.Marshaler{
 	OrigName:    true,
 }
 
-// SetConfig set the global config
-func SetConfig(cfg *cfg.Config, frm *mesosutil.FrameworkConfig) {
-	config = cfg
-	framework = frm
-}
-
 // Subscribe to the mesos backend
-func Subscribe() error {
+func Subscribe(cfg *cfg.Config, frm *mesosutil.FrameworkConfig) *Scheduler {
+	e := &Scheduler{
+		Config:    cfg,
+		Framework: frm,
+	}
+
 	subscribeCall := &mesosproto.Call{
-		FrameworkID: framework.FrameworkInfo.ID,
+		FrameworkID: e.Framework.FrameworkInfo.ID,
 		Type:        mesosproto.Call_SUBSCRIBE,
 		Subscribe: &mesosproto.Call_Subscribe{
-			FrameworkInfo: &framework.FrameworkInfo,
+			FrameworkInfo: &e.Framework.FrameworkInfo,
 		},
 	}
 	logrus.Debug(subscribeCall)
@@ -49,18 +53,27 @@ func Subscribe() error {
 	client := &http.Client{}
 	// #nosec G402
 	client.Transport = &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: config.SkipSSL},
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: e.Config.SkipSSL},
 	}
 
 	protocol := "https"
-	if !framework.MesosSSL {
+	if !e.Framework.MesosSSL {
 		protocol = "http"
 	}
-	req, _ := http.NewRequest("POST", protocol+"://"+framework.MesosMasterServer+"/api/v1/scheduler", bytes.NewBuffer([]byte(body)))
+	req, _ := http.NewRequest("POST", protocol+"://"+e.Framework.MesosMasterServer+"/api/v1/scheduler", bytes.NewBuffer([]byte(body)))
 	req.Close = true
-	req.SetBasicAuth(framework.Username, framework.Password)
+	req.SetBasicAuth(e.Framework.Username, e.Framework.Password)
 	req.Header.Set("Content-Type", "application/json")
-	res, err := client.Do(req)
+
+	e.Req = req
+	e.Client = client
+
+	return e
+}
+
+// EventLoop is the main loop for the mesos events.
+func (e *Scheduler) EventLoop() {
+	res, err := e.Client.Do(e.Req)
 
 	if err != nil {
 		logrus.Fatal(err)
@@ -73,9 +86,11 @@ func Subscribe() error {
 	_ = strings.TrimSuffix(line, "\n")
 
 	// initialstart
-	if framework.MesosStreamID == "" {
-		StartEtcd("")
+	if e.Framework.MesosStreamID == "" {
+		e.StartEtcd("")
 	}
+
+	go e.HeartbeatLoop()
 
 	for {
 		// Read line from Mesos
@@ -94,40 +109,37 @@ func Subscribe() error {
 			logrus.Debug(event)
 			logrus.Info("Subscribed")
 			logrus.Info("FrameworkId: ", event.Subscribed.GetFrameworkID())
-			framework.FrameworkInfo.ID = event.Subscribed.GetFrameworkID()
-			framework.MesosStreamID = res.Header.Get("Mesos-Stream-Id")
-			d, _ := json.Marshal(&framework)
-			err = config.RedisClient.Set(config.RedisCTX, framework.FrameworkName+":framework", d, 0).Err()
+			e.Framework.FrameworkInfo.ID = event.Subscribed.GetFrameworkID()
+			e.Framework.MesosStreamID = res.Header.Get("Mesos-Stream-Id")
+			d, _ := json.Marshal(&e.Framework)
+			err = e.API.Redis.RedisClient.Set(e.API.Redis.RedisCTX, e.Framework.FrameworkName+":framework", d, 0).Err()
 			if err != nil {
 				logrus.Error("Framework save config and state into redis Error: ", err)
 			}
+			e.API.SaveConfig()
 		case mesosproto.Event_UPDATE:
-			logrus.Debug("Update", HandleUpdate(&event))
-		case mesosproto.Event_HEARTBEAT:
-			Heartbeat()
+			e.HandleUpdate(&event)
 			// save configuration
-			api.SaveConfig()
+			e.API.SaveConfig()
 		case mesosproto.Event_OFFERS:
 			// Search Failed containers and restart them
 			logrus.Debug("Offer Got")
-			err = HandleOffers(event.Offers)
+			err = e.HandleOffers(event.Offers)
 			if err != nil {
 				logrus.Error("Switch Event HandleOffers: ", err)
 			}
-		default:
-			logrus.Debug("DEFAULT EVENT: ", event.Offers)
 		}
 	}
 }
 
 // Generate random host portnumber
-func getRandomHostPort(num int) uint32 {
+func (e *Scheduler)getRandomHostPort(num int) uint32 {
 	// search two free ports
-	for i := framework.PortRangeFrom; i < framework.PortRangeTo; i++ {
+	for i := e.Framework.PortRangeFrom; i < e.Framework.PortRangeTo; i++ {
 		port := uint32(i)
 		use := false
 		for x := 0; x < num; x++ {
-			if portInUse(port+uint32(x), "server") || portInUse(port+uint32(x), "agent") {
+			if e.portInUse(port+uint32(x), "server") || e.portInUse(port+uint32(x), "agent") {
 				tmp := use || true
 				use = tmp
 				x = num
@@ -144,13 +156,13 @@ func getRandomHostPort(num int) uint32 {
 }
 
 // Check if the port is already in use
-func portInUse(port uint32, service string) bool {
+func (e *Scheduler)portInUse(port uint32, service string) bool {
 	// get all running services
 	logrus.Debug("Check if port is in use: ", port, service)
-	keys := api.GetAllRedisKeys(framework.FrameworkName + ":" + service + ":*")
-	for keys.Next(config.RedisCTX) {
+	keys := e.API.GetAllRedisKeys(e.Framework.FrameworkName + ":" + service + ":*")
+	for keys.Next(e.API.Redis.RedisCTX) {
 		// get the details of the current running service
-		key := api.GetRedisKey(keys.Val())
+		key := e.API.GetRedisKey(keys.Val())
 		var task mesosutil.Command
 		json.Unmarshal([]byte(key), &task)
 

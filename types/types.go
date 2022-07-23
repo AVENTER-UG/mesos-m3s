@@ -1,11 +1,8 @@
 package types
 
 import (
-	"context"
-
 	mesosutil "github.com/AVENTER-UG/mesos-util"
 	mesosproto "github.com/AVENTER-UG/mesos-util/proto"
-	goredis "github.com/go-redis/redis/v8"
 )
 
 // Config is a struct of the framework configuration
@@ -57,8 +54,6 @@ type Config struct {
 	M3SStatus                   M3SStatus
 	MesosSandboxVar             string
 	RedisServer                 string
-	RedisClient                 *goredis.Client
-	RedisCTX                    context.Context
 	RedisPassword               string
 	RedisDB                     int
 	SkipSSL                     bool

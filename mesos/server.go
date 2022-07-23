@@ -14,39 +14,39 @@ import (
 )
 
 // StartK3SServer Start K3S with the given id
-func StartK3SServer(taskID string) {
+func (e *Scheduler)StartK3SServer(taskID string) {
 	// if taskID is 0, then its a new task and we have to create a new ID
 	newTaskID := taskID
 	if taskID == "" {
 		newTaskID, _ = util.GenUUID()
 	}
 
-	cni := framework.MesosCNI
+	cni := e.Framework.MesosCNI
 
 	var cmd mesosutil.Command
 
 	cmd.TaskID = newTaskID
 
 	cmd.ContainerType = "DOCKER"
-	cmd.ContainerImage = config.ImageK3S
+	cmd.ContainerImage = e.Config.ImageK3S
 	cmd.Shell = true
 	cmd.Privileged = true
-	cmd.ContainerImage = config.ImageK3S
-	cmd.Memory = config.K3SServerMEM
-	cmd.CPU = config.K3SServerCPU
-	cmd.TaskName = framework.FrameworkName + ":server"
-	cmd.Hostname = framework.FrameworkName + "server" + config.Domain
-	cmd.Command = "$MESOS_SANDBOX/bootstrap '" + config.K3SServerString + config.K3SDocker + " --kube-controller-manager-arg='leader-elect=false' --kube-scheduler-arg='leader-elect=false' -tls-san=" + framework.FrameworkName + "server'"
-	cmd.DockerParameter = addDockerParameter(make([]mesosproto.Parameter, 0), mesosproto.Parameter{Key: "cap-add", Value: "NET_ADMIN"})
-	cmd.DockerParameter = addDockerParameter(make([]mesosproto.Parameter, 0), mesosproto.Parameter{Key: "cap-add", Value: "SYS_ADMIN"})
-	cmd.DockerParameter = addDockerParameter(cmd.DockerParameter, mesosproto.Parameter{Key: "shm-size", Value: config.DockerSHMSize})
+	cmd.ContainerImage = e.Config.ImageK3S
+	cmd.Memory = e.Config.K3SServerMEM
+	cmd.CPU = e.Config.K3SServerCPU
+	cmd.TaskName = e.Framework.FrameworkName + ":server"
+	cmd.Hostname = e.Framework.FrameworkName + "server" + e.Config.Domain
+	cmd.Command = "$MESOS_SANDBOX/bootstrap '" + e.Config.K3SServerString + e.Config.K3SDocker + " --kube-controller-manager-arg='leader-elect=false' --kube-scheduler-arg='leader-elect=false' -tls-san=" + e.Framework.FrameworkName + "server'"
+	cmd.DockerParameter = e.addDockerParameter(make([]mesosproto.Parameter, 0), mesosproto.Parameter{Key: "cap-add", Value: "NET_ADMIN"})
+	cmd.DockerParameter = e.addDockerParameter(make([]mesosproto.Parameter, 0), mesosproto.Parameter{Key: "cap-add", Value: "SYS_ADMIN"})
+	cmd.DockerParameter = e.addDockerParameter(cmd.DockerParameter, mesosproto.Parameter{Key: "shm-size", Value: e.Config.DockerSHMSize})
 	// if mesos cni is unset, then use docker cni
-	if framework.MesosCNI == "" {
+	if e.Framework.MesosCNI == "" {
 		// net-alias is only supported onuser-defined networks
-		if config.DockerCNI != "bridge" {
+		if e.Config.DockerCNI != "bridge" {
 			cmd.NetworkMode = "user"
-			cni = config.DockerCNI
-			cmd.DockerParameter = addDockerParameter(cmd.DockerParameter, mesosproto.Parameter{Key: "net-alias", Value: framework.FrameworkName + "server"})
+			cni = e.Config.DockerCNI
+			cmd.DockerParameter = e.addDockerParameter(cmd.DockerParameter, mesosproto.Parameter{Key: "net-alias", Value: e.Framework.FrameworkName + "server"})
 		}
 	}
 
@@ -56,7 +56,7 @@ func StartK3SServer(taskID string) {
 
 	cmd.Uris = []mesosproto.CommandInfo_URI{
 		{
-			Value:      config.BootstrapURL,
+			Value:      e.Config.BootstrapURL,
 			Extract:    func() *bool { x := false; return &x }(),
 			Executable: func() *bool { x := true; return &x }(),
 			Cache:      func() *bool { x := false; return &x }(),
@@ -70,15 +70,15 @@ func StartK3SServer(taskID string) {
 			Source: &mesosproto.Volume_Source{
 				Type: mesosproto.Volume_Source_DOCKER_VOLUME,
 				DockerVolume: &mesosproto.Volume_Source_DockerVolume{
-					Driver: &config.VolumeDriver,
-					Name:   config.VolumeK3SServer,
+					Driver: &e.Config.VolumeDriver,
+					Name:   e.Config.VolumeK3SServer,
 				},
 			},
 		},
 	}
 
 	// get free hostport. If there is no one, do not start
-	hostport := getRandomHostPort(3)
+	hostport := e.getRandomHostPort(3)
 	if hostport == 0 {
 		logrus.WithField("func", "StartK3SServer").Error("Could not find free ports")
 		return
@@ -126,7 +126,7 @@ func StartK3SServer(taskID string) {
 		},
 	}
 
-	CreateK3SServerString()
+	e.CreateK3SServerString()
 
 	cmd.Environment.Variables = []mesosproto.Environment_Variable{
 		{
@@ -139,15 +139,15 @@ func StartK3SServer(taskID string) {
 		},
 		{
 			Name:  "K3S_URL",
-			Value: &config.K3SServerURL,
+			Value: &e.Config.K3SServerURL,
 		},
 		{
 			Name:  "K3S_TOKEN",
-			Value: &config.K3SToken,
+			Value: &e.Config.K3SToken,
 		},
 		{
 			Name:  "K3S_KUBECONFIG_OUTPUT",
-			Value: func() *string { x := "/mnt/mesos/sandbox/kubeconfig.yaml"; return &x }(),
+			Value: func() *string { x := "/mnt/mesos/sandbox/kubee.Config.yaml"; return &x }(),
 		},
 		{
 			Name:  "K3S_KUBECONFIG_MODE",
@@ -156,13 +156,13 @@ func StartK3SServer(taskID string) {
 		{
 			Name: "K3S_DATASTORE_ENDPOINT",
 			Value: func() *string {
-				x := "http://" + framework.FrameworkName + "etcd" + config.Domain + ":2379"
+				x := "http://" + e.Framework.FrameworkName + "etcd" + e.Config.Domain + ":2379"
 				return &x
 			}(),
 		},
 		{
 			Name:  "MESOS_SANDBOX_VAR",
-			Value: &config.MesosSandboxVar,
+			Value: &e.Config.MesosSandboxVar,
 		},
 	}
 
@@ -170,23 +170,23 @@ func StartK3SServer(taskID string) {
 	d, _ := json.Marshal(&cmd)
 	logrus.Debug("Scheduled K3S Server: ", util.PrettyJSON(d))
 	logrus.Info("Scheduled K3S Server")
-	err := config.RedisClient.Set(config.RedisCTX, cmd.TaskName+":"+newTaskID, d, 0).Err()
+	err := e.API.Redis.RedisClient.Set(e.API.Redis.RedisCTX, cmd.TaskName+":"+newTaskID, d, 0).Err()
 	if err != nil {
 		logrus.Error("Cloud not store Mesos Task in Redis: ", err)
 	}
 }
 
 // CreateK3SServerString create the K3S_URL string
-func CreateK3SServerString() {
-	server := "https://" + framework.FrameworkName + "server" + config.Domain + ":6443"
+func (e *Scheduler)CreateK3SServerString() {
+	server := "https://" + e.Framework.FrameworkName + "server" + e.Config.Domain + ":6443"
 
-	config.K3SServerURL = server
+	e.Config.K3SServerURL = server
 }
 
 // IsK3SServerRunning check if the kubernetes server is already running
-func IsK3SServerRunning() bool {
+func (e *Scheduler)IsK3SServerRunning() bool {
 	client := &http.Client{}
-	req, _ := http.NewRequest("GET", "http://"+config.M3SBootstrapServerHostname+":"+strconv.Itoa(config.M3SBootstrapServerPort)+"/api/m3s/bootstrap/v0/status", nil)
+	req, _ := http.NewRequest("GET", "http://"+e.Config.M3SBootstrapServerHostname+":"+strconv.Itoa(e.Config.M3SBootstrapServerPort)+"/api/m3s/bootstrap/v0/status", nil)
 	req.Close = true
 	res, err := client.Do(req)
 
@@ -211,10 +211,10 @@ func IsK3SServerRunning() bool {
 
 	if string(content) == "ok" {
 		logrus.Debug("IsK3SServerRunning: True")
-		config.M3SStatus.API = "ok"
+		e.Config.M3SStatus.API = "ok"
 		return true
 	}
 
-	config.M3SStatus.API = "nok"
+	e.Config.M3SStatus.API = "nok"
 	return false
 }

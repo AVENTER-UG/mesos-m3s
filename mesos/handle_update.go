@@ -3,7 +3,6 @@ package mesos
 import (
 	"encoding/json"
 
-	api "github.com/AVENTER-UG/mesos-m3s/api"
 	mesosutil "github.com/AVENTER-UG/mesos-util"
 
 	mesosproto "github.com/AVENTER-UG/mesos-util/proto"
@@ -12,7 +11,7 @@ import (
 )
 
 // HandleUpdate will handle the offers event of mesos
-func HandleUpdate(event *mesosproto.Event) error {
+func (e *Scheduler)HandleUpdate(event *mesosproto.Event) error {
 	logrus.Debug("HandleUpdate")
 
 	update := event.Update
@@ -27,7 +26,7 @@ func HandleUpdate(event *mesosproto.Event) error {
 	}
 
 	// get the task of the current event, change the state
-	task := api.GetTaskFromEvent(update)
+	task := e.API.GetTaskFromEvent(update)
 	task.State = update.Status.State.String()
 	task.Agent = update.Status.GetAgentID().Value
 
@@ -43,7 +42,7 @@ func HandleUpdate(event *mesosproto.Event) error {
 		task.State = ""
 	case mesosproto.TASK_KILLED:
 		// remove task
-		api.DelRedisKey(task.TaskName + ":" + task.TaskID)
+		e.API.DelRedisKey(task.TaskName + ":" + task.TaskID)
 		return mesosutil.Call(msg)
 	case mesosproto.TASK_LOST:
 		// restart task
@@ -55,7 +54,7 @@ func HandleUpdate(event *mesosproto.Event) error {
 
 	// save the new state
 	data, _ := json.Marshal(task)
-	err := config.RedisClient.Set(config.RedisCTX, task.TaskName+":"+task.TaskID, data, 0).Err()
+	err := e.API.Redis.RedisClient.Set(e.API.Redis.RedisCTX, task.TaskName+":"+task.TaskID, data, 0).Err()
 	if err != nil {
 		logrus.Error("HandleUpdate Redis set Error: ", err)
 	}

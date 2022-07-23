@@ -3,7 +3,6 @@ package mesos
 import (
 	"encoding/json"
 
-	api "github.com/AVENTER-UG/mesos-m3s/api"
 	mesosutil "github.com/AVENTER-UG/mesos-util"
 	mesosproto "github.com/AVENTER-UG/mesos-util/proto"
 	"github.com/AVENTER-UG/util"
@@ -11,11 +10,11 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func getEtcdStatus() string {
-	keys := api.GetAllRedisKeys(framework.FrameworkName + ":etcd:*")
+func (e *Scheduler)getEtcdStatus() string {
+	keys := e.API.GetAllRedisKeys(e.Framework.FrameworkName + ":etcd:*")
 
-	for keys.Next(config.RedisCTX) {
-		key := api.GetRedisKey(keys.Val())
+	for keys.Next(e.API.Redis.RedisCTX) {
+		key := e.API.GetRedisKey(keys.Val())
 		var task mesosutil.Command
 		json.Unmarshal([]byte(key), &task)
 		return task.State
@@ -24,7 +23,7 @@ func getEtcdStatus() string {
 }
 
 // StartEtcd is starting the etcd
-func StartEtcd(taskID string) {
+func (e *Scheduler)StartEtcd(taskID string) {
 	var cmd mesosutil.Command
 
 	// if taskID is 0, then its a new task and we have to create a new ID
@@ -33,26 +32,26 @@ func StartEtcd(taskID string) {
 		newTaskID, _ = util.GenUUID()
 	}
 
-	cni := framework.MesosCNI
+	cni := e.Framework.MesosCNI
 
 	cmd.TaskID = newTaskID
 	cmd.ContainerType = "DOCKER"
-	cmd.ContainerImage = config.ImageETCD
+	cmd.ContainerImage = e.Config.ImageETCD
 	cmd.Shell = true
 	cmd.Privileged = false
-	cmd.Memory = config.ETCDMEM
-	cmd.CPU = config.ETCDCPU
-	cmd.Disk = config.ETCDDISK
-	cmd.TaskName = framework.FrameworkName + ":etcd"
-	cmd.Hostname = framework.FrameworkName + "etcd" + config.Domain
-	cmd.DockerParameter = addDockerParameter(make([]mesosproto.Parameter, 0), mesosproto.Parameter{Key: "cap-add", Value: "NET_ADMIN"})
+	cmd.Memory = e.Config.ETCDMEM
+	cmd.CPU = e.Config.ETCDCPU
+	cmd.Disk = e.Config.ETCDDISK
+	cmd.TaskName = e.Framework.FrameworkName + ":etcd"
+	cmd.Hostname = e.Framework.FrameworkName + "etcd" + e.Config.Domain
+	cmd.DockerParameter = e.addDockerParameter(make([]mesosproto.Parameter, 0), mesosproto.Parameter{Key: "cap-add", Value: "NET_ADMIN"})
 	// if mesos cni is unset, then use docker cni
-	if framework.MesosCNI == "" {
+	if e.Framework.MesosCNI == "" {
 		// net-alias is only supported onuser-defined networks
-		if config.DockerCNI != "bridge" {
+		if e.Config.DockerCNI != "bridge" {
 			cmd.NetworkMode = "user"
-			cni = config.DockerCNI
-			cmd.DockerParameter = addDockerParameter(cmd.DockerParameter, mesosproto.Parameter{Key: "net-alias", Value: framework.FrameworkName + "etcd"})
+			cni = e.Config.DockerCNI
+			cmd.DockerParameter = e.addDockerParameter(cmd.DockerParameter, mesosproto.Parameter{Key: "net-alias", Value: e.Framework.FrameworkName + "etcd"})
 		}
 	}
 
@@ -96,12 +95,12 @@ func StartEtcd(taskID string) {
 	d, _ := json.Marshal(&cmd)
 	logrus.Debug("Scheduled Etcd: ", string(d))
 	logrus.Info("Scheduled Etcd")
-	err := config.RedisClient.Set(config.RedisCTX, cmd.TaskName+":"+newTaskID, d, 0).Err()
+	err := e.API.Redis.RedisClient.Set(e.API.Redis.RedisCTX, cmd.TaskName+":"+newTaskID, d, 0).Err()
 	if err != nil {
 		logrus.Error("Cloud not store Mesos Task in Redis: ", err)
 	}
 }
 
-func addDockerParameter(current []mesosproto.Parameter, newValues mesosproto.Parameter) []mesosproto.Parameter {
+func (e *Scheduler)addDockerParameter(current []mesosproto.Parameter, newValues mesosproto.Parameter) []mesosproto.Parameter {
 	return append(current, newValues)
 }
