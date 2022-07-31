@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export KUBECONFIG=$MESOS_SANDBOX/kubeconfig.yaml
-export BRANCH=objects
+export BRANCH=sw-mysql
 
 if [ -n $1 ]
 then
