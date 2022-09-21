@@ -28,6 +28,7 @@ type Config struct {
 	DSMySQL                     bool
 	DSMySQLUsername             string
 	DSMySQLPassword             string
+	DSMySQLSSL                  bool
 	DockerSock                  string
 	DockerSHMSize               string
 	Domain                      string

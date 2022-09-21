@@ -14,6 +14,7 @@
 - Update to k3s 1.24.x
 - Fix scale up performance
 - Add support for cri-docker (enable with K3S_DOCKER=true)
+- Add support for MySQL TLS datastore communication
 
 ## v0.3.0
 

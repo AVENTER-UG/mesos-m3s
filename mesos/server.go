@@ -179,6 +179,36 @@ func (e *Scheduler) StartK3SServer(taskID string) {
 			}(),
 		}
 		cmd.Environment.Variables = append(cmd.Environment.Variables, ds)
+
+		// Enable TLS
+		if e.Config.DSMySQLSSL {
+			ds = mesosproto.Environment_Variable{
+				Name: "K3S_DATASTORE_CAFILE",
+				Value: func() *string {
+					x := "/var/lib/rancher/k3s/root-ca.pem"
+					return &x
+				}(),
+			}
+			cmd.Environment.Variables = append(cmd.Environment.Variables, ds)
+
+			ds = mesosproto.Environment_Variable{
+				Name: "K3S_DATASTORE_CERTFILE",
+				Value: func() *string {
+					x := "/var/lib/rancher/k3s/server-cert.pem"
+					return &x
+				}(),
+			}
+			cmd.Environment.Variables = append(cmd.Environment.Variables, ds)
+
+			ds = mesosproto.Environment_Variable{
+				Name: "K3S_DATASTORE_KEYFILE",
+				Value: func() *string {
+					x := "/var/lib/rancher/k3s/server-key.pem"
+					return &x
+				}(),
+			}
+			cmd.Environment.Variables = append(cmd.Environment.Variables, ds)
+		}
 	}
 
 	// store mesos task in DB
