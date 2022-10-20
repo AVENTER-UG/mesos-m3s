@@ -63,6 +63,24 @@ func (e *Scheduler) StartK3SServer(taskID string) {
 		},
 	}
 
+	if e.Config.CGroupV2 {
+		cmd.DockerParameter = e.addDockerParameter(cmd.DockerParameter, mesosproto.Parameter{Key: "cgroupns", Value: "host"})
+
+		tmpVol := mesosproto.Volume{
+			ContainerPath: "/sys/fs/cgroup",
+			Mode:          mesosproto.RW.Enum(),
+			Source: &mesosproto.Volume_Source{
+				Type: mesosproto.Volume_Source_DOCKER_VOLUME,
+				DockerVolume: &mesosproto.Volume_Source_DockerVolume{
+					Driver: &e.Config.VolumeDriver,
+					Name:   func() string { x := "/sys/fs/cgroup"; return x }(),
+				},
+			},
+		}
+
+		cmd.Volumes = append(cmd.Volumes, tmpVol)
+	}
+
 	protocol := "tcp"
 	cmd.DockerPortMappings = []mesosproto.ContainerInfo_DockerInfo_PortMapping{
 		{
@@ -185,7 +203,7 @@ func (e *Scheduler) StartK3SServer(taskID string) {
 			ds = mesosproto.Environment_Variable{
 				Name: "K3S_DATASTORE_CAFILE",
 				Value: func() *string {
-					x := "/var/lib/rancher/k3s/root-ca.pem"
+					x := "/var/lib/rancher/k3s/ca.pem"
 					return &x
 				}(),
 			}
@@ -194,7 +212,7 @@ func (e *Scheduler) StartK3SServer(taskID string) {
 			ds = mesosproto.Environment_Variable{
 				Name: "K3S_DATASTORE_CERTFILE",
 				Value: func() *string {
-					x := "/var/lib/rancher/k3s/server-cert.pem"
+					x := "/var/lib/rancher/k3s/client-cert.pem"
 					return &x
 				}(),
 			}
@@ -203,7 +221,7 @@ func (e *Scheduler) StartK3SServer(taskID string) {
 			ds = mesosproto.Environment_Variable{
 				Name: "K3S_DATASTORE_KEYFILE",
 				Value: func() *string {
-					x := "/var/lib/rancher/k3s/server-key.pem"
+					x := "/var/lib/rancher/k3s/client-key.pem"
 					return &x
 				}(),
 			}
@@ -226,6 +244,10 @@ func (e *Scheduler) CreateK3SServerString() {
 // healthCheckK3s check if the kubernetes server is already running
 func (e *Scheduler) healthCheckK3s() bool {
 	k3sState := false
+
+	if e.Config.K3SServerHostname == "" {
+		return false
+	}
 
 	BootstrapProtocol := "http"
 	if e.Config.BootstrapSSLCrt != "" {
