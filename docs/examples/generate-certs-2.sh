@@ -22,7 +22,7 @@ basicConstraints = CA:true
 countryName = DE
 stateOrProvinceName = SH
 localityName = EN
-organizationalUnitName	= IT
+organizationalUnitName = IT
 
 [ v3_req ]
 # Extensions to add to a certificate request
@@ -32,13 +32,13 @@ subjectAltName = @alt_names
 
 [alt_names]
 DNS.1 = ${NAME}
-DNS.2 = *.mini
+DNS.2 = *.${DOMAIN}
 DNS.3 = ${NAME}.${DOMAIN}
 EOF
 
 openssl genrsa 2048 > ca-key.pem
 
-openssl req -sha256 -new -x509 -nodes -days 3600 -key ca-key.pem -out ca-cert.pem -subj '/CN=${NAME}.${DOMAIN}' -config ./config.cnf
+openssl req -sha256 -new -x509 -nodes -days 3600 -key ca-key.pem -out ca-cert.pem -subj "/CN=${NAME}.${DOMAIN}" -config ./config.cnf
 
 
 for HOST in $HOSTS
