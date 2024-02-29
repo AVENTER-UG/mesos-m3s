@@ -169,6 +169,9 @@ func (e *Mesos) GetOffer(offers *mesosproto.Event_Offers, cmd cfg.Command) (meso
 
 // DeclineOffer will decline the given offers
 func (e *Mesos) DeclineOffer(offerIds []mesosproto.OfferID) *mesosproto.Call {
+
+	logrus.WithField("func", "scheduler.HandleOffers").Debug("Offer Decline: ", offerIds)
+
 	refuseSeconds := 120.0
 
 	decline := &mesosproto.Call{
