@@ -141,5 +141,11 @@ func (e *Scheduler) HandleOffers(offers *mesosproto.Event_Offers) error {
 		// decline unneeded offer
 		// logrus.WithField("func", "scheduler.HandleOffers").Debug("Offer Decline: ", offerIds)
 		return e.Mesos.Call(e.Mesos.DeclineOffer(offerIds))
+
+	default:
+		// decline unneeded offer
+		_, offerIds := e.Mesos.GetOffer(offers, cfg.Command{})
+		logrus.WithField("func", "scheduler.HandleOffers").Debug("Declining unneeded offers")
+		return e.Mesos.Call(e.Mesos.DeclineOffer(offerIds))
 	}
 }
