@@ -14,8 +14,8 @@ import (
 	cfg "github.com/AVENTER-UG/mesos-m3s/types"
 	"github.com/AVENTER-UG/util/util"
 
+	logrus "github.com/AVENTER-UG/mesos-m3s/logger"
 	"github.com/gogo/protobuf/jsonpb"
-	"github.com/sirupsen/logrus"
 )
 
 // Scheduler include all the current vars and global config
@@ -125,6 +125,7 @@ func (e *Scheduler) EventLoop() {
 			e.HandleUpdate(&event)
 			// save configuration
 			e.Redis.SaveConfig(*e.Config)
+			go e.callPluginEvent(event)
 		case mesosproto.Event_OFFERS:
 			// Search Failed containers and restart them
 			err = e.HandleOffers(event.Offers)
@@ -271,5 +272,25 @@ func (e *Scheduler) implicitReconcile() {
 
 	if err != nil {
 		logrus.WithField("func", "scheduler.implicitReconcile").Debug("Reconcile Error: ", err)
+	}
+}
+
+func (e *Scheduler) callPluginEvent(event mesosproto.Event) {
+	if e.Config.PluginsEnable {
+		for _, p := range e.Config.Plugins {
+			symbol, err := p.Lookup("Event")
+			if err != nil {
+				logrus.WithField("func", "scheduler.callPluginEvent").Error("Error lookup event function in plugin: ", err.Error())
+				continue
+			}
+
+			eventPluginFunc, ok := symbol.(func(mesosproto.Event))
+			if !ok {
+				logrus.WithField("func", "main.callPluginEvent").Error("Error plugin does not have Event function")
+				continue
+			}
+
+			eventPluginFunc(event)
+		}
 	}
 }
