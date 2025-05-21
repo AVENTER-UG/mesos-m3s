@@ -42,7 +42,7 @@ func (e *Scheduler) StartDatastore(taskID string) {
 	}
 
 	if e.Config.RestrictDiskAllocation {
-		cmd.DockerParameter = e.addDockerParameter(cmd.DockerParameter, "storage-opt", fmt.Sprintf("size=%smb", strconv.Itoa(int(e.Config.DSDISK))))
+		cmd.DockerParameter = e.addDockerParameter(cmd.DockerParameter, "storage-opt", fmt.Sprintf("size=%smb", strconv.Itoa(int(e.Config.DSDISKLimit))))
 	}
 
 	if e.Config.CustomDockerRuntime != "" {
