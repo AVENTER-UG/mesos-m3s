@@ -16,7 +16,12 @@ import (
 
 // StartK3SServer Start K3S with the given id
 func (e *Scheduler) StartK3SServer(taskID string) {
-	if e.Redis.CountRedisKey(e.Framework.FrameworkName+":server:*", "") >= e.Config.K3SServerMax {
+	if e.Redis.CountRedisKey(e.Framework.FrameworkName+":server:*", "") == e.Config.K3SServerMax {
+		return
+	}
+
+	if e.Redis.CountRedisKey(e.Framework.FrameworkName+":server:*", "") > e.Config.K3SServerMax {
+		e.API.Scale(e.Config.K3SServerMax, e.Redis.CountRedisKey(e.Framework.FrameworkName+":server:*", ""), "server")
 		return
 	}
 
@@ -294,7 +299,7 @@ func (e *Scheduler) healthCheckNode(kind string, max int) bool {
 	// Hold the at all state of the agent service.
 	aState := false
 
-	if e.Redis.CountRedisKey(e.Framework.FrameworkName+":"+kind+":*", "") < max {
+	if e.Redis.CountRedisKey(e.Framework.FrameworkName+":"+kind+":*", "") != max {
 		logrus.WithField("func", "scheduler.healthCheckNode").Warningf("K3s %s missing", kind)
 		return false
 	}
