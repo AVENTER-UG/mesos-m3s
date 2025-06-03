@@ -83,21 +83,6 @@ func (e *Scheduler) StartK3SAgent(taskID string) {
 	}
 
 	if e.Config.EnableRegistryMirror {
-
-		distributedRegistryPorts := []*mesosproto.ContainerInfo_DockerInfo_PortMapping{
-			{
-				HostPort:      util.Uint32ToPointer(0),
-				ContainerPort: util.Uint32ToPointer(5001),
-				Protocol:      util.StringToPointer("tcp"),
-			},
-			{
-				HostPort:      util.Uint32ToPointer(0),
-				ContainerPort: util.Uint32ToPointer(6443),
-				Protocol:      util.StringToPointer("tcp"),
-			},
-		}
-
-		cmd.DockerPortMappings = append(cmd.DockerPortMappings, distributedRegistryPorts...)
 		cmd.Arguments = append(cmd.Arguments, "--embedded-registry")
 	}
 

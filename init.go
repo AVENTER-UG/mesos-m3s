@@ -202,7 +202,7 @@ func init() {
 	// Set Custom Environment Variables to the K3S Nodes... Environment variables can be set as key=value,key=value,key=value
 	K3SNodeEnv := util.Getenv("K3S_NODE_ENV", "")
 	if K3SNodeEnv != "" {
-		environmentVariableGroups := strings.Split(K3SNodeEnv, ",")
+		environmentVariableGroups := strings.Split(K3SNodeEnv, util.Getenv("K3S_NODE_ENV_DELIMITER", ","))
 		for _, envString := range environmentVariableGroups {
 			splits := strings.Split(envString, "=")
 			config.K3SNodeEnvironmentVariable[splits[0]] = splits[1]

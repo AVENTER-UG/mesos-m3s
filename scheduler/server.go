@@ -132,18 +132,6 @@ func (e *Scheduler) StartK3SServer(taskID string) {
 	}
 
 	if e.Config.EnableRegistryMirror {
-		cmd.DockerPortMappings = append(cmd.DockerPortMappings, &mesosproto.ContainerInfo_DockerInfo_PortMapping{
-			HostPort:      util.Uint32ToPointer(0),
-			ContainerPort: util.Uint32ToPointer(5001),
-			Protocol:      &protocol,
-		})
-
-		cmd.Discovery.Ports.Ports = append(cmd.Discovery.Ports.Ports, &mesosproto.Port{
-			Number:   util.Uint32ToPointer(0),
-			Name:     func() *string { x := "http"; return &x }(),
-			Protocol: &protocol,
-		})
-
 		cmd.Arguments = append(cmd.Arguments, "--embedded-registry")
 	}
 
