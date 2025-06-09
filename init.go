@@ -199,13 +199,33 @@ func init() {
 		logrus.WithField("func", "nain.init").Info("Setting Offer Constraints on host to: ", strings.Join(config.HostConstraintsList, ","))
 	}
 
-	// Set Custom Environment Variables to the K3S Nodes... Environment variables can be set as key=value,key=value,key=value
+	// Set Custom Environment Variables to all the K3S Nodes... Environment variables can be set as key=value,key=value,key=value
 	K3SNodeEnv := util.Getenv("K3S_NODE_ENV", "")
 	if K3SNodeEnv != "" {
 		environmentVariableGroups := strings.Split(K3SNodeEnv, util.Getenv("K3S_NODE_ENV_DELIMITER", ","))
 		for _, envString := range environmentVariableGroups {
 			splits := strings.Split(envString, "=")
 			config.K3SNodeEnvironmentVariable[splits[0]] = splits[1]
+		}
+	}
+
+	// Set Custom Environment Variables to only the server K3s Nodes... Environment variables can be set as key=value,key=value,key=value with comma being controlled with K3S_NODE_ENV_DELIMITER
+	K3SServerNodeEnv := util.Getenv("K3S_SERVER_NODE_ENV", "")
+	if K3SNodeEnv != "" {
+		environmentVariableGroups := strings.Split(K3SServerNodeEnv, util.Getenv("K3S_NODE_ENV_DELIMITER", ","))
+		for _, envString := range environmentVariableGroups {
+			splits := strings.Split(envString, "=")
+			config.K3SServerNodeEnvironmentVariable[splits[0]] = splits[1]
+		}
+	}
+
+	// Set Custom Environment Variables to all the K3S Nodes... Environment variables can be set as key=value,key=value,key=value
+	K3SAgentNodeEnv := util.Getenv("K3S_AGENT_NODE_ENV", "")
+	if K3SNodeEnv != "" {
+		environmentVariableGroups := strings.Split(K3SAgentNodeEnv, util.Getenv("K3S_NODE_ENV_DELIMITER", ","))
+		for _, envString := range environmentVariableGroups {
+			splits := strings.Split(envString, "=")
+			config.K3SAgentNodeEnvironmentVariable[splits[0]] = splits[1]
 		}
 	}
 }

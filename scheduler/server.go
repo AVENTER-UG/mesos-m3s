@@ -220,6 +220,14 @@ func (e *Scheduler) StartK3SServer(taskID string) {
 		cmd.Environment.Variables = append(cmd.Environment.Variables, env)
 	}
 
+	for key, value := range e.Config.K3SServerNodeEnvironmentVariable {
+		env := &mesosproto.Environment_Variable{
+			Name:  &key,
+			Value: &value,
+		}
+		cmd.Environment.Variables = append(cmd.Environment.Variables, env)
+	}
+
 	if e.Config.K3SServerLabels != nil {
 		cmd.Labels = e.Config.K3SServerLabels
 	}
