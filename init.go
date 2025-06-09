@@ -211,7 +211,7 @@ func init() {
 
 	// Set Custom Environment Variables to only the server K3s Nodes... Environment variables can be set as key=value,key=value,key=value with comma being controlled with K3S_NODE_ENV_DELIMITER
 	K3SServerNodeEnv := util.Getenv("K3S_SERVER_NODE_ENV", "")
-	if K3SNodeEnv != "" {
+	if K3SServerNodeEnv != "" {
 		environmentVariableGroups := strings.Split(K3SServerNodeEnv, util.Getenv("K3S_NODE_ENV_DELIMITER", ","))
 		for _, envString := range environmentVariableGroups {
 			splits := strings.Split(envString, "=")
@@ -219,13 +219,33 @@ func init() {
 		}
 	}
 
-	// Set Custom Environment Variables to all the K3S Nodes... Environment variables can be set as key=value,key=value,key=value
+	// Set Custom Environment Variables to all the K3S agent Nodes... Environment variables can be set as key=value,key=value,key=value  with comma being controlled with K3S_NODE_ENV_DELIMITER
 	K3SAgentNodeEnv := util.Getenv("K3S_AGENT_NODE_ENV", "")
-	if K3SNodeEnv != "" {
+	if K3SAgentNodeEnv != "" {
 		environmentVariableGroups := strings.Split(K3SAgentNodeEnv, util.Getenv("K3S_NODE_ENV_DELIMITER", ","))
 		for _, envString := range environmentVariableGroups {
 			splits := strings.Split(envString, "=")
 			config.K3SAgentNodeEnvironmentVariable[splits[0]] = splits[1]
+		}
+	}
+
+	// Set Custom Docker Parameters to all the K3S Server Nodes... Parameters can be set as key=value,key=value,key=value with comma being controlled with K3S_NODE_DOCKER_PARAMETER_DELIMITER
+	K3SServerNodeCustomDockerParameters := util.Getenv("K3S_SERVER_CUSTOM_DOCKER_PARAMETER", "")
+	if K3SServerNodeCustomDockerParameters != "" {
+		parameterGroups := strings.Split(K3SServerNodeCustomDockerParameters, util.Getenv("K3S_NODE_DOCKER_PARAMETER_DELIMITER", ","))
+		for _, parameters := range parameterGroups {
+			splits := strings.Split(parameters, "=")
+			config.K3SServerCustomDockerParameters[splits[0]] = splits[1]
+		}
+	}
+
+	// Set Custom Docker Parameters to all the K3S Agent Nodes... Parameters can be set as key=value,key=value,key=value with comma being controlled with K3S_NODE_DOCKER_PARAMETER_DELIMITER
+	K3SAgentNodeCustomDockerParameters := util.Getenv("K3S_AGENT_CUSTOM_DOCKER_PARAMETER", "")
+	if K3SAgentNodeCustomDockerParameters != "" {
+		parameterGroups := strings.Split(K3SAgentNodeCustomDockerParameters, util.Getenv("K3S_NODE_DOCKER_PARAMETER_DELIMITER", ","))
+		for _, parameters := range parameterGroups {
+			splits := strings.Split(parameters, "=")
+			config.K3SAgentCustomDockerParameters[splits[0]] = splits[1]
 		}
 	}
 }

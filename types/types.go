@@ -64,6 +64,7 @@ type Config struct {
 	K3SServerDISK                    float64
 	K3SServerDISKLimit               float64
 	K3SServerLabels                  []*mesosproto.Label
+	K3SServerCustomDockerParameters  map[string]string
 	K3SAgent                         map[string]string
 	K3SAgentMax                      int
 	K3SAgentString                   string
@@ -76,6 +77,7 @@ type Config struct {
 	K3SAgentDISK                     float64
 	K3SAgentDISKLimit                float64
 	K3SAgentTCPPort                  int
+	K3SAgentCustomDockerParameters   map[string]string
 	K3SDocker                        string
 	K3SToken                         string
 	K3SEnableTaint                   bool

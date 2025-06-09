@@ -74,6 +74,10 @@ func (e *Scheduler) StartK3SAgent(taskID string) {
 	cmd.DockerParameter = e.addDockerParameter(cmd.DockerParameter, "memory-swap", fmt.Sprintf("%.0fg", (e.Config.DockerMemorySwap+e.Config.K3SAgentMEM)/1024))
 	cmd.DockerParameter = e.addDockerParameter(cmd.DockerParameter, "ulimit", "nofile="+e.Config.DockerUlimit)
 
+	for key, value := range e.Config.K3SAgentCustomDockerParameters {
+		cmd.DockerParameter = e.addDockerParameter(cmd.DockerParameter, key, value)
+	}
+
 	if e.Config.RestrictDiskAllocation {
 		cmd.DockerParameter = e.addDockerParameter(cmd.DockerParameter, "storage-opt", fmt.Sprintf("size=%smb", strconv.Itoa(int(e.Config.K3SAgentDISKLimit))))
 	}

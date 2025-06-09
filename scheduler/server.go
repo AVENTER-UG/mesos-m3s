@@ -53,12 +53,12 @@ func (e *Scheduler) StartK3SServer(taskID string) {
 	cmd.DockerParameter = e.addDockerParameter(cmd.DockerParameter, "memory-swap", fmt.Sprintf("%.0fg", (e.Config.DockerMemorySwap+e.Config.K3SServerMEM)/1024))
 	cmd.DockerParameter = e.addDockerParameter(cmd.DockerParameter, "ulimit", "nofile="+e.Config.DockerUlimit)
 
-	if e.Config.RestrictDiskAllocation {
-		cmd.DockerParameter = e.addDockerParameter(cmd.DockerParameter, "storage-opt", fmt.Sprintf("size=%smb", strconv.Itoa(int(e.Config.K3SServerDISKLimit))))
+	for key, value := range e.Config.K3SServerCustomDockerParameters {
+		cmd.DockerParameter = e.addDockerParameter(cmd.DockerParameter, key, value)
 	}
 
-	if e.Config.CustomDockerRuntime != "" {
-		cmd.DockerParameter = e.addDockerParameter(cmd.DockerParameter, "runtime", e.Config.CustomDockerRuntime)
+	if e.Config.RestrictDiskAllocation {
+		cmd.DockerParameter = e.addDockerParameter(cmd.DockerParameter, "storage-opt", fmt.Sprintf("size=%smb", strconv.Itoa(int(e.Config.K3SServerDISKLimit))))
 	}
 
 	cmd.Instances = e.Config.K3SServerMax
