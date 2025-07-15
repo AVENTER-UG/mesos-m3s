@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"plugin"
@@ -108,6 +109,10 @@ func init() {
 	config.K3SAgentMaxRestore = 0
 	config.K3SServerMaxRestore = 0
 	config.K3SNodeEnvironmentVariable = make(map[string]string)
+	config.K3SServerNodeEnvironmentVariable = make(map[string]string)
+	config.K3SAgentNodeEnvironmentVariable = make(map[string]string)
+	config.K3SServerCustomDockerParameters = make(map[string]string)
+	config.K3SAgentCustomDockerParameters = make(map[string]string)
 	config.EnforceMesosTaskLimits = stringToBool(util.Getenv("ENFORCE_MESOS_TASK_LIMITS", "true"))
 	config.RestrictDiskAllocation = stringToBool(util.Getenv("RESTRICT_DISK_ALLOCATION", "false"))
 	config.EnableRegistryMirror = stringToBool(util.Getenv("ENABLE_REGISTRY_MIRROR", "false"))
@@ -234,8 +239,11 @@ func init() {
 	if K3SServerNodeCustomDockerParameters != "" {
 		parameterGroups := strings.Split(K3SServerNodeCustomDockerParameters, util.Getenv("K3S_NODE_DOCKER_PARAMETER_DELIMITER", ","))
 		for _, parameters := range parameterGroups {
-			splits := strings.Split(parameters, "=")
-			config.K3SServerCustomDockerParameters[splits[0]] = splits[1]
+			key, value, exists := strings.Cut(parameters, "=")
+			fmt.Println(key, value)
+			if exists {
+				config.K3SServerCustomDockerParameters[key] = value
+			}
 		}
 	}
 
@@ -244,8 +252,10 @@ func init() {
 	if K3SAgentNodeCustomDockerParameters != "" {
 		parameterGroups := strings.Split(K3SAgentNodeCustomDockerParameters, util.Getenv("K3S_NODE_DOCKER_PARAMETER_DELIMITER", ","))
 		for _, parameters := range parameterGroups {
-			splits := strings.Split(parameters, "=")
-			config.K3SAgentCustomDockerParameters[splits[0]] = splits[1]
+			key, value, exists := strings.Cut(parameters, "=")
+			if exists {
+				config.K3SAgentCustomDockerParameters[key] = value
+			}
 		}
 	}
 }
